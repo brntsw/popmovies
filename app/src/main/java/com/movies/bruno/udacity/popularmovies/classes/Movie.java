@@ -8,7 +8,8 @@ public class Movie {
     private String title;
     private String backdropPath;
     private String originalTitle;
-    private String popularity;
+    private double popularity;
+    private double voteAverage;
     private String posterPath;
     private String releaseDate;
 
@@ -37,11 +38,11 @@ public class Movie {
         this.originalTitle = originalTitle;
     }
 
-    public String getPopularity() {
+    public double getPopularity() {
         return popularity;
     }
 
-    public void setPopularity(String popularity) {
+    public void setPopularity(double popularity) {
         this.popularity = popularity;
     }
 
@@ -59,5 +60,13 @@ public class Movie {
 
     public void setReleaseDate(String releaseDate) {
         this.releaseDate = releaseDate;
+    }
+
+    public double getVoteAverage() {
+        return voteAverage;
+    }
+
+    public void setVoteAverage(double voteAverage) {
+        this.voteAverage = voteAverage;
     }
 }

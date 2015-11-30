@@ -9,7 +9,10 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.GridView;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.movies.bruno.udacity.popularmovies.classes.Movie;
@@ -23,6 +26,7 @@ public class MainActivity extends AppCompatActivity {
 
     private GridView gridMovies;
     Toolbar toolbar;
+    Spinner spinnerSort;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +38,8 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         initialize();
+
+        spinnerSort = (Spinner) toolbar.findViewById(R.id.spinner_menu);
     }
 
     protected void onResume(){
@@ -42,15 +48,52 @@ public class MainActivity extends AppCompatActivity {
         ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
         if(networkInfo != null && networkInfo.isConnected()){
+            spinnerSort.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                    String query = "all";
+
+                    if(position == 1){ //Popularity
+                        //When selecting Sort by Popularity, the query is &sort_by=popularity.desc
+                        query += "&sort_by=popularity.desc";
+                    }
+                    else if(position == 2){ //Highest-rated
+                        //When selecting Sort by Highest-rated, the query is &sort_by=vote_average.desc
+                        query += "&sort_by=vote_average.desc";
+                    }
+
+                    try {
+                        ArrayList<Movie> movies = new TMDBTask().execute(query).get();
+
+                        if(movies != null){
+                            for(int i = 0; i < movies.size(); i++){
+                                Log.d("RESULT", "Popularity: " + movies.get(i).getPopularity());
+                                Log.d("RESULT", "Vote: " + movies.get(i).getVoteAverage());
+                            }
+                        }
+                        else{
+                            Toast.makeText(MainActivity.this, R.string.no_movies, Toast.LENGTH_SHORT).show();
+                        }
+                    } catch (InterruptedException | ExecutionException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> parent) {
+
+                }
+            });
+
             try{
-                ArrayList<Movie> movies = new TMDBTask().execute("com.daginge.tmdbsearch.QUERY").get();
+                ArrayList<Movie> movies = new TMDBTask().execute("all").get();
                 if(movies != null){
                     for(int i = 0; i < movies.size(); i++){
                         Log.d("RESULT", movies.get(i).getOriginalTitle());
                     }
                 }
                 else{
-                    Log.d("RESULT", "Empty");
+                    Toast.makeText(MainActivity.this, R.string.no_movies, Toast.LENGTH_SHORT).show();
                 }
             }
             catch(InterruptedException | ExecutionException e){

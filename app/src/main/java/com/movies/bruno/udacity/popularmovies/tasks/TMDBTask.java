@@ -14,7 +14,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
@@ -37,11 +36,7 @@ public class TMDBTask extends AsyncTask<String, Void, ArrayList<Movie>> {
     }
 
     public ArrayList<Movie> searchMovie(String query) throws IOException{
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("http://api.themoviedb.org/3/search/movie");
-        stringBuilder.append("?api_key=" + TMDB_API_KEY);
-        stringBuilder.append("&query=" + query);
-        URL url = new URL(stringBuilder.toString());
+        URL url = new URL("http://api.themoviedb.org/3/search/movie" + "?api_key=" + TMDB_API_KEY + "&query=" + query);
 
         InputStream inputStream = null;
 
@@ -59,7 +54,7 @@ public class TMDBTask extends AsyncTask<String, Void, ArrayList<Movie>> {
 
             inputStream = conn.getInputStream();
 
-            return parseResult(stringify(inputStream));
+            return parseResult(reader(inputStream));
         }
         finally{
             if(inputStream != null){
@@ -80,7 +75,8 @@ public class TMDBTask extends AsyncTask<String, Void, ArrayList<Movie>> {
                 movie.setTitle(jsonMovie.getString("title"));
                 movie.setBackdropPath(jsonMovie.getString("backdrop_path"));
                 movie.setOriginalTitle(jsonMovie.getString("original_title"));
-                movie.setPopularity(jsonMovie.getString("popularity"));
+                movie.setPopularity(jsonMovie.getDouble("popularity"));
+                movie.setVoteAverage(jsonMovie.getDouble("vote_average"));
                 movie.setPosterPath(jsonMovie.getString("poster_path"));
                 movie.setReleaseDate(jsonMovie.getString("release_date"));
 
@@ -94,7 +90,7 @@ public class TMDBTask extends AsyncTask<String, Void, ArrayList<Movie>> {
         return results;
     }
 
-    public String stringify(InputStream stream) throws IOException, UnsupportedEncodingException {
+    public String reader(InputStream stream) throws IOException{
         Reader reader = new InputStreamReader(stream, "UTF-8");
         BufferedReader bufferedReader = new BufferedReader(reader);
         return bufferedReader.readLine();
