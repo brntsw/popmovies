@@ -36,7 +36,7 @@ public class TMDBTask extends AsyncTask<String, Void, ArrayList<Movie>> {
     }
 
     public ArrayList<Movie> searchMovie(String query) throws IOException{
-        URL url = new URL("http://api.themoviedb.org/3/search/movie" + "?api_key=" + TMDB_API_KEY + "&query=" + query);
+        URL url = new URL("http://api.themoviedb.org/3/discover/movie?" + query + "&api_key=" + TMDB_API_KEY);
 
         InputStream inputStream = null;
 
@@ -72,6 +72,7 @@ public class TMDBTask extends AsyncTask<String, Void, ArrayList<Movie>> {
                 JSONObject jsonMovie = jsonArray.getJSONObject(i);
 
                 Movie movie = new Movie();
+                movie.setId(jsonMovie.getInt("id"));
                 movie.setTitle(jsonMovie.getString("title"));
                 movie.setBackdropPath(jsonMovie.getString("backdrop_path"));
                 movie.setOriginalTitle(jsonMovie.getString("original_title"));

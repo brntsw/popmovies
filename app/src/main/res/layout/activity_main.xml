@@ -11,10 +11,9 @@
     <GridView
         android:id="@+id/gridMovies"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:numColumns="2"
-        android:horizontalSpacing="10dp"
-        android:verticalSpacing="10dp"
+        android:stretchMode="columnWidth"
         android:layout_below="@+id/toolbar"/>
 
 </RelativeLayout>

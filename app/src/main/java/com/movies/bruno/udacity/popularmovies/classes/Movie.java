@@ -5,6 +5,7 @@ package com.movies.bruno.udacity.popularmovies.classes;
  */
 public class Movie {
 
+    private int id;
     private String title;
     private String backdropPath;
     private String originalTitle;
@@ -13,6 +14,13 @@ public class Movie {
     private String posterPath;
     private String releaseDate;
 
+    public int getId(){
+        return this.id;
+    }
+
+    public void setId(int id){
+        this.id = id;
+    }
 
     public String getTitle() {
         return title;

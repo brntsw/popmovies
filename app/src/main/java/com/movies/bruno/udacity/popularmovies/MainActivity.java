@@ -15,6 +15,7 @@ import android.widget.GridView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.movies.bruno.udacity.popularmovies.adapter.MovieAdapter;
 import com.movies.bruno.udacity.popularmovies.classes.Movie;
 import com.movies.bruno.udacity.popularmovies.tasks.TMDBTask;
 
@@ -51,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
             spinnerSort.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    String query = "all";
+                    String query = "";
 
                     if(position == 1){ //Popularity
                         //When selecting Sort by Popularity, the query is &sort_by=popularity.desc
@@ -66,6 +67,10 @@ public class MainActivity extends AppCompatActivity {
                         ArrayList<Movie> movies = new TMDBTask().execute(query).get();
 
                         if(movies != null){
+                            MovieAdapter adapter = new MovieAdapter(MainActivity.this, movies);
+
+                            gridMovies.setAdapter(adapter);
+
                             for(int i = 0; i < movies.size(); i++){
                                 Log.d("RESULT", "Popularity: " + movies.get(i).getPopularity());
                                 Log.d("RESULT", "Vote: " + movies.get(i).getVoteAverage());
