@@ -13,5 +13,6 @@
         <item>Popularity</item>
         <item>Highest-rated</item>
     </string-array>
+    <string name="settings_title">Settings</string>
 
 </resources>

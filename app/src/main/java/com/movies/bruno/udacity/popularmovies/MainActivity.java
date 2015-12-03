@@ -1,6 +1,7 @@
 package com.movies.bruno.udacity.popularmovies;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -12,7 +13,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.GridView;
-import android.widget.Spinner;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.movies.bruno.udacity.popularmovies.adapter.MovieAdapter;
@@ -27,7 +28,7 @@ public class MainActivity extends AppCompatActivity {
 
     private GridView gridMovies;
     Toolbar toolbar;
-    Spinner spinnerSort;
+    //Spinner spinnerSort;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,7 +41,43 @@ public class MainActivity extends AppCompatActivity {
 
         initialize();
 
-        spinnerSort = (Spinner) toolbar.findViewById(R.id.spinner_menu);
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+        if(networkInfo != null && networkInfo.isConnected()){
+            String query = "&sort_by=popularity.desc";
+
+            try {
+                ArrayList<Movie> movies = new TMDBTask().execute(query).get();
+
+                if(movies != null){
+                    MovieAdapter adapter = new MovieAdapter(MainActivity.this, movies);
+
+                    gridMovies.setAdapter(adapter);
+
+                    gridMovies.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                            ImageView imageView = (ImageView) view.findViewById(R.id.picture);
+                            Movie movie = (Movie) imageView.getTag();
+                            //Iniciar outra activity MovieDetailActivity, enviando o objeto movie
+                            Toast.makeText(MainActivity.this, "Title: " + movie.getTitle(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+
+                    for(int i = 0; i < movies.size(); i++){
+                        Log.d("RESULT", "Popularity: " + movies.get(i).getPopularity());
+                        Log.d("RESULT", "Vote: " + movies.get(i).getVoteAverage());
+                    }
+                }
+                else{
+                    Toast.makeText(MainActivity.this, R.string.no_movies, Toast.LENGTH_SHORT).show();
+                }
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
+            }
+        }
+
+        //spinnerSort = (Spinner) toolbar.findViewById(R.id.spinner_menu);
     }
 
     protected void onResume(){
@@ -49,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
         ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
         if(networkInfo != null && networkInfo.isConnected()){
-            spinnerSort.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            /*spinnerSort.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                     String query = "";
@@ -71,6 +108,16 @@ public class MainActivity extends AppCompatActivity {
 
                             gridMovies.setAdapter(adapter);
 
+                            gridMovies.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                                @Override
+                                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                                    ImageView imageView = (ImageView) view.findViewById(R.id.picture);
+                                    Movie movie = (Movie) imageView.getTag();
+                                    //Iniciar outra activity MovieDetailActivity, enviando o objeto movie
+                                    Toast.makeText(MainActivity.this, "Title: " + movie.getTitle(), Toast.LENGTH_SHORT).show();
+                                }
+                            });
+
                             for(int i = 0; i < movies.size(); i++){
                                 Log.d("RESULT", "Popularity: " + movies.get(i).getPopularity());
                                 Log.d("RESULT", "Vote: " + movies.get(i).getVoteAverage());
@@ -88,7 +135,7 @@ public class MainActivity extends AppCompatActivity {
                 public void onNothingSelected(AdapterView<?> parent) {
 
                 }
-            });
+            });*/
 
             try{
                 ArrayList<Movie> movies = new TMDBTask().execute("all").get();
@@ -127,6 +174,9 @@ public class MainActivity extends AppCompatActivity {
 
         switch (id){
             case R.id.action_settings:
+                //Call the SettingsActivity
+                Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+                startActivity(intent);
                 return true;
             case R.id.action_about:
                 return true;

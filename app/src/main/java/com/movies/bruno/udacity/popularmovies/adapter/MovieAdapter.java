@@ -53,6 +53,7 @@ public class MovieAdapter extends BaseAdapter{
         if(convertView == null){
             v = inflater.inflate(R.layout.image_movie, parent, false);
             v.setTag(R.id.picture, v.findViewById(R.id.picture));
+            v.setTag(movie);
         }
 
         imageView = (ImageView) v.getTag(R.id.picture);

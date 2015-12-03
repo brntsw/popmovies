@@ -10,11 +10,11 @@
     android:theme="@style/Theme.Toolbar"
     app:titleTextAppearance="@style/Theme.Toolbar.Title">
 
-    <Spinner
+    <!--<Spinner
         android:id="@+id/spinner_menu"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:prompt="@string/sort"
-        android:entries="@array/sortItems"/>
+        android:entries="@array/sortItems"/>-->
 
 </android.support.v7.widget.Toolbar>
