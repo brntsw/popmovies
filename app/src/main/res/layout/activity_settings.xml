@@ -28,7 +28,8 @@
         <RadioButton
             android:id="@+id/radioMostPopular"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:background="@drawable/abc_btn_radio_material"/>
 
         <TextView
             android:layout_width="wrap_content"
@@ -49,7 +50,8 @@
         <RadioButton
             android:id="@+id/radioHighestRated"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:background="@drawable/abc_btn_radio_material"/>
 
         <TextView
             android:layout_width="wrap_content"

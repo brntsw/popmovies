@@ -14,5 +14,7 @@
         <item>Highest-rated</item>
     </string-array>
     <string name="settings_title">Settings</string>
+    <string name="title_activity_movie_details">MovieDetailsActivity</string>
+    <string name="details_title">Movie details</string>
 
 </resources>

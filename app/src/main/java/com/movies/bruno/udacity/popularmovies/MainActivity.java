@@ -59,8 +59,10 @@ public class MainActivity extends AppCompatActivity {
                         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                             ImageView imageView = (ImageView) view.findViewById(R.id.picture);
                             Movie movie = (Movie) imageView.getTag();
-                            //Iniciar outra activity MovieDetailActivity, enviando o objeto movie
-                            Toast.makeText(MainActivity.this, "Title: " + movie.getTitle(), Toast.LENGTH_SHORT).show();
+                            //Iniciar outra activity MovieDetailsActivity, enviando o objeto movie
+                            Intent intent = new Intent(MainActivity.this, MovieDetailsActivity.class);
+                            intent.putExtra("name", movie.getTitle());
+                            startActivity(intent);
                         }
                     });
 
