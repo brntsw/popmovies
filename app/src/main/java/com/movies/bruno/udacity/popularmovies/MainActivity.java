@@ -47,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
             String query = "&sort_by=popularity.desc";
 
             try {
-                ArrayList<Movie> movies = new TMDBTask().execute(query).get();
+                final ArrayList<Movie> movies = new TMDBTask().execute(query).get();
 
                 if(movies != null){
                     MovieAdapter adapter = new MovieAdapter(MainActivity.this, movies);
@@ -61,7 +61,12 @@ public class MainActivity extends AppCompatActivity {
                             Movie movie = (Movie) imageView.getTag();
                             //Iniciar outra activity MovieDetailsActivity, enviando o objeto movie
                             Intent intent = new Intent(MainActivity.this, MovieDetailsActivity.class);
-                            intent.putExtra("name", movie.getTitle());
+                            intent.putExtra("backdropPath", movie.getBackdropPath());
+                            intent.putExtra("posterPath", movie.getPosterPath());
+                            intent.putExtra("title", movie.getTitle());
+                            intent.putExtra("released", movie.getReleaseDate());
+                            intent.putExtra("voteAverage", movie.getVoteAverage());
+                            intent.putExtra("overview", movie.getOverview());
                             startActivity(intent);
                         }
                     });

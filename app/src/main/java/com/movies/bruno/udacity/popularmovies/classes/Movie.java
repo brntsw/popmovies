@@ -13,6 +13,7 @@ public class Movie {
     private double voteAverage;
     private String posterPath;
     private String releaseDate;
+    private String overview;
 
     public int getId(){
         return this.id;
@@ -76,5 +77,13 @@ public class Movie {
 
     public void setVoteAverage(double voteAverage) {
         this.voteAverage = voteAverage;
+    }
+
+    public String getOverview() {
+        return overview;
+    }
+
+    public void setOverview(String overview) {
+        this.overview = overview;
     }
 }

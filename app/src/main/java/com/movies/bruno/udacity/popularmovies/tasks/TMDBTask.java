@@ -80,6 +80,7 @@ public class TMDBTask extends AsyncTask<String, Void, ArrayList<Movie>> {
                 movie.setVoteAverage(jsonMovie.getDouble("vote_average"));
                 movie.setPosterPath(jsonMovie.getString("poster_path"));
                 movie.setReleaseDate(jsonMovie.getString("release_date"));
+                movie.setOverview(jsonMovie.getString("overview"));
 
                 results.add(movie);
             }

@@ -7,17 +7,29 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import com.squareup.picasso.Picasso;
 
 
 public class MovieDetailsActivity extends AppCompatActivity {
 
     Toolbar toolbar;
 
+    private ImageView backdropView;
+    private ImageView posterView;
+    private TextView titleView;
+    private TextView releasedView;
+    private TextView starText;
+    private TextView overviewView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_details);
+
+        initializeComponents();
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle(R.string.details_title);
@@ -34,7 +46,19 @@ public class MovieDetailsActivity extends AppCompatActivity {
         //Get the Bundle sent from the MainActivity
         Bundle extras = getIntent().getExtras();
         if(extras != null){
-            Toast.makeText(MovieDetailsActivity.this, extras.getString("name"), Toast.LENGTH_SHORT).show();
+            String backdropPath = extras.getString("backdropPath");
+            String posterPath = extras.getString("posterPath");
+            String title = extras.getString("title");
+            String released = extras.getString("released");
+            double voteAverage = extras.getDouble("voteAverage");
+            String overview = extras.getString("overview");
+
+            Picasso.with(MovieDetailsActivity.this).load("http://image.tmdb.org/t/p/w185/" + backdropPath).into(backdropView);
+            Picasso.with(MovieDetailsActivity.this).load("http://image.tmdb.org/t/p/w185/" + posterPath).into(posterView);
+            titleView.setText(title);
+            releasedView.setText(released);
+            starText.setText(String.valueOf(voteAverage));
+            overviewView.setText(overview);
         }
     }
 
@@ -58,5 +82,14 @@ public class MovieDetailsActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void initializeComponents(){
+        backdropView = (ImageView) findViewById(R.id.backdropView);
+        posterView = (ImageView) findViewById(R.id.posterView);
+        titleView = (TextView) findViewById(R.id.titleView);
+        releasedView = (TextView) findViewById(R.id.releasedView);
+        starText = (TextView) findViewById(R.id.starText);
+        overviewView = (TextView) findViewById(R.id.overviewView);
     }
 }
