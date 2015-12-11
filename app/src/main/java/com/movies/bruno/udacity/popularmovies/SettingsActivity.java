@@ -1,5 +1,7 @@
 package com.movies.bruno.udacity.popularmovies;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -42,6 +44,18 @@ public class SettingsActivity extends AppCompatActivity {
 
         listRadio.add(radioMostPopular);
         listRadio.add(radioHighestRated);
+
+        SharedPreferences sharedPref = getSharedPreferences(getResources().getString(R.string.pref_name), Context.MODE_PRIVATE);
+        int pref = sharedPref.getInt(getString(R.string.saved_sort_movie), -1);
+
+        if(pref == -1 || pref == R.id.radioMostPopular){
+            radioMostPopular.setChecked(true);
+            radioHighestRated.setChecked(false);
+        }
+        else{
+            radioHighestRated.setChecked(true);
+            radioMostPopular.setChecked(false);
+        }
     }
 
     protected void onResume(){
@@ -62,9 +76,17 @@ public class SettingsActivity extends AppCompatActivity {
                     switch (v.getId()){
                         case R.id.radioMostPopular:
                             //Save this in the SharedPreferences
+                            SharedPreferences sp = getSharedPreferences(getResources().getString(R.string.pref_name), Context.MODE_PRIVATE);
+                            SharedPreferences.Editor editor = sp.edit();
+                            editor.putInt(getString(R.string.saved_sort_movie), R.id.radioMostPopular);
+                            editor.apply();
                             break;
                         case R.id.radioHighestRated:
                             //Save this in the SharedPreferences
+                            SharedPreferences sp2 = getSharedPreferences(getResources().getString(R.string.pref_name), Context.MODE_PRIVATE);
+                            SharedPreferences.Editor editor2 = sp2.edit();
+                            editor2.putInt(getString(R.string.saved_sort_movie), R.id.radioHighestRated);
+                            editor2.apply();
                             break;
                     }
                 }

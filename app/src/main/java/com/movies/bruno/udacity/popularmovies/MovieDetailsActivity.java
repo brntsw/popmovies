@@ -1,5 +1,6 @@
 package com.movies.bruno.udacity.popularmovies;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -76,12 +77,17 @@ public class MovieDetailsActivity extends AppCompatActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        switch (id){
+            case R.id.action_settings:
+                //Call the SettingsActivity
+                Intent intent = new Intent(MovieDetailsActivity.this, SettingsActivity.class);
+                startActivity(intent);
+                return true;
+            case R.id.action_about:
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
-
-        return super.onOptionsItemSelected(item);
     }
 
     private void initializeComponents(){

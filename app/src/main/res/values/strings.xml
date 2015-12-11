@@ -16,5 +16,7 @@
     <string name="settings_title">Settings</string>
     <string name="title_activity_movie_details">MovieDetailsActivity</string>
     <string name="details_title">Movie details</string>
+    <string name="saved_sort_movie">prefSortMovie</string>
+    <string name="pref_name">SettingsPref</string>
 
 </resources>

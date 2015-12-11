@@ -2,6 +2,7 @@ package com.movies.bruno.udacity.popularmovies;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -28,29 +29,31 @@ public class MainActivity extends AppCompatActivity {
 
     private GridView gridMovies;
     Toolbar toolbar;
+    MovieAdapter adapter;
     //Spinner spinnerSort;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
-        toolbar.setTitle(R.string.app_name);
-        setSupportActionBar(toolbar);
-
-        initialize();
-
+    private void listMovies(){
         ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
         if(networkInfo != null && networkInfo.isConnected()){
-            String query = "&sort_by=popularity.desc";
+            SharedPreferences sharedPref = getSharedPreferences(getResources().getString(R.string.pref_name), Context.MODE_PRIVATE);
+            int pref = sharedPref.getInt(getString(R.string.saved_sort_movie), -1);
+
+            Log.d("Pref", pref+"");
+
+            String query;
+            if(pref == -1 || pref == R.id.radioMostPopular){
+                query = "&sort_by=popularity.desc";
+            }
+            else{
+                query = "&sort_by=vote_average.desc";
+            }
 
             try {
                 final ArrayList<Movie> movies = new TMDBTask().execute(query).get();
 
                 if(movies != null){
-                    MovieAdapter adapter = new MovieAdapter(MainActivity.this, movies);
+                    adapter = new MovieAdapter(MainActivity.this, movies);
 
                     gridMovies.setAdapter(adapter);
 
@@ -83,6 +86,23 @@ public class MainActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
+        else{
+            Toast.makeText(getApplicationContext(), "No network connection", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar.setTitle(R.string.app_name);
+        setSupportActionBar(toolbar);
+
+        initialize();
+
+        listMovies();
 
         //spinnerSort = (Spinner) toolbar.findViewById(R.id.spinner_menu);
     }
@@ -90,78 +110,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume(){
         super.onResume();
 
-        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
-        if(networkInfo != null && networkInfo.isConnected()){
-            /*spinnerSort.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                @Override
-                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    String query = "";
-
-                    if(position == 1){ //Popularity
-                        //When selecting Sort by Popularity, the query is &sort_by=popularity.desc
-                        query += "&sort_by=popularity.desc";
-                    }
-                    else if(position == 2){ //Highest-rated
-                        //When selecting Sort by Highest-rated, the query is &sort_by=vote_average.desc
-                        query += "&sort_by=vote_average.desc";
-                    }
-
-                    try {
-                        ArrayList<Movie> movies = new TMDBTask().execute(query).get();
-
-                        if(movies != null){
-                            MovieAdapter adapter = new MovieAdapter(MainActivity.this, movies);
-
-                            gridMovies.setAdapter(adapter);
-
-                            gridMovies.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                                @Override
-                                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                                    ImageView imageView = (ImageView) view.findViewById(R.id.picture);
-                                    Movie movie = (Movie) imageView.getTag();
-                                    //Iniciar outra activity MovieDetailActivity, enviando o objeto movie
-                                    Toast.makeText(MainActivity.this, "Title: " + movie.getTitle(), Toast.LENGTH_SHORT).show();
-                                }
-                            });
-
-                            for(int i = 0; i < movies.size(); i++){
-                                Log.d("RESULT", "Popularity: " + movies.get(i).getPopularity());
-                                Log.d("RESULT", "Vote: " + movies.get(i).getVoteAverage());
-                            }
-                        }
-                        else{
-                            Toast.makeText(MainActivity.this, R.string.no_movies, Toast.LENGTH_SHORT).show();
-                        }
-                    } catch (InterruptedException | ExecutionException e) {
-                        e.printStackTrace();
-                    }
-                }
-
-                @Override
-                public void onNothingSelected(AdapterView<?> parent) {
-
-                }
-            });*/
-
-            try{
-                ArrayList<Movie> movies = new TMDBTask().execute("all").get();
-                if(movies != null){
-                    for(int i = 0; i < movies.size(); i++){
-                        Log.d("RESULT", movies.get(i).getOriginalTitle());
-                    }
-                }
-                else{
-                    Toast.makeText(MainActivity.this, R.string.no_movies, Toast.LENGTH_SHORT).show();
-                }
-            }
-            catch(InterruptedException | ExecutionException e){
-                Log.e("Error", e.getMessage());
-            }
-
-        }
-        else{
-            Toast.makeText(getApplicationContext(), "No network connection", Toast.LENGTH_SHORT).show();
+        if(adapter != null){
+            listMovies();
         }
     }
 
