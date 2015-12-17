@@ -64,6 +64,7 @@ public class MainActivity extends AppCompatActivity {
                             Movie movie = (Movie) imageView.getTag();
                             //Iniciar outra activity MovieDetailsActivity, enviando o objeto movie
                             Intent intent = new Intent(MainActivity.this, MovieDetailsActivity.class);
+                            intent.putExtra("movieId", movie.getId());
                             intent.putExtra("backdropPath", movie.getBackdropPath());
                             intent.putExtra("posterPath", movie.getPosterPath());
                             intent.putExtra("title", movie.getTitle());

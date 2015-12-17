@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -11,7 +13,12 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.movies.bruno.udacity.popularmovies.adapter.VideoAdapter;
+import com.movies.bruno.udacity.popularmovies.tasks.TMDBVideosTask;
 import com.squareup.picasso.Picasso;
+
+import java.util.ArrayList;
+import java.util.concurrent.ExecutionException;
 
 
 public class MovieDetailsActivity extends AppCompatActivity {
@@ -24,6 +31,8 @@ public class MovieDetailsActivity extends AppCompatActivity {
     private TextView releasedView;
     private TextView starText;
     private TextView overviewView;
+    private RecyclerView recyclerVideos;
+    private RecyclerView.LayoutManager mLayoutManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,12 +56,26 @@ public class MovieDetailsActivity extends AppCompatActivity {
         //Get the Bundle sent from the MainActivity
         Bundle extras = getIntent().getExtras();
         if(extras != null){
+            int id = extras.getInt("movieId");
             String backdropPath = extras.getString("backdropPath");
             String posterPath = extras.getString("posterPath");
             String title = extras.getString("title");
             String released = extras.getString("released");
             double voteAverage = extras.getDouble("voteAverage");
             String overview = extras.getString("overview");
+
+            try {
+                ArrayList<String> listKeys = new TMDBVideosTask().execute(id).get();
+                VideoAdapter adapter = new VideoAdapter(MovieDetailsActivity.this, listKeys, R.layout.item_movie_trailer);
+                //recyclerVideos.setHasFixedSize(true);
+                LinearLayoutManager llm = new LinearLayoutManager(this);
+                llm.setOrientation(LinearLayoutManager.VERTICAL);
+                recyclerVideos.setAdapter(adapter);
+                recyclerVideos.setLayoutManager(llm);
+
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
+            }
 
             Picasso.with(MovieDetailsActivity.this).load("http://image.tmdb.org/t/p/w185/" + backdropPath).into(backdropView);
             Picasso.with(MovieDetailsActivity.this).load("http://image.tmdb.org/t/p/w185/" + posterPath).into(posterView);
@@ -97,5 +120,6 @@ public class MovieDetailsActivity extends AppCompatActivity {
         releasedView = (TextView) findViewById(R.id.releasedView);
         starText = (TextView) findViewById(R.id.starText);
         overviewView = (TextView) findViewById(R.id.overviewView);
+        recyclerVideos = (RecyclerView) findViewById(R.id.recyclerVideos);
     }
 }

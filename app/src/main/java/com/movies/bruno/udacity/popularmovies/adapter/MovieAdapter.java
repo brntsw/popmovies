@@ -58,9 +58,6 @@ public class MovieAdapter extends BaseAdapter{
 
         imageView = (ImageView) v.getTag(R.id.picture);
 
-        //IMPLEMENT THE ASYNCTASK TO DOWNLOAD THE IMAGE FROM SERVER
-        //Details: http://stackoverflow.com/questions/5776851/load-image-from-url
-
         Picasso.with(activity).load("http://image.tmdb.org/t/p/w185/" + movie.getPosterPath()).into(imageView);
 
         return v;

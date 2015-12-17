@@ -105,6 +105,23 @@
                 android:layout_marginEnd="20dp"
                 android:textSize="18sp"
                 android:paddingBottom="20dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingTop="20dp"
+                android:paddingLeft="18dp"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:text="Trailers"
+                android:layout_below="@+id/overviewView"/>
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/recyclerVideos"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="10dp"
+                android:orientation="vertical"/>
         </RelativeLayout>
     </ScrollView>
 
