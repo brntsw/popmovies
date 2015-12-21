@@ -107,6 +107,7 @@
                 android:paddingBottom="20dp"/>
 
             <TextView
+                android:id="@+id/tvTrailers"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:paddingTop="20dp"
@@ -116,12 +117,31 @@
                 android:text="Trailers"
                 android:layout_below="@+id/overviewView"/>
 
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/recyclerVideos"
+            <LinearLayout
+                android:id="@+id/linearTrailers"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingTop="10dp"
-                android:orientation="vertical"/>
+                android:orientation="vertical"
+                android:layout_below="@+id/tvTrailers"/>
+
+            <TextView
+                android:id="@+id/tvReviews"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingTop="20dp"
+                android:paddingLeft="18dp"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:text="Reviews"
+                android:layout_below="@+id/linearTrailers"/>
+
+            <LinearLayout
+                android:id="@+id/linearReviews"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_below="@+id/tvReviews"/>
+
         </RelativeLayout>
     </ScrollView>
 

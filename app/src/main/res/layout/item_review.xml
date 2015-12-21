@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="10dp">
+
+    <TextView
+        android:id="@+id/tvAuthor"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Author:"/>
+
+    <TextView
+        android:id="@+id/tvAuthorName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingLeft="10dp"
+        android:text="Example of author name"
+        android:textStyle="bold"
+        android:layout_toRightOf="@+id/tvAuthor"
+        android:layout_toEndOf="@+id/tvAuthor"/>
+
+    <TextView
+        android:id="@+id/tvContent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Content:"
+        android:layout_below="@+id/tvAuthor"/>
+
+    <TextView
+        android:id="@+id/tvContentText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingLeft="10dp"
+        android:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed vel eros eget elit dignissim fermentum quis id risus. Sed in mi odio. Donec vitae malesuada felis. Pellentesque varius dui a tortor ornare, ac pharetra risus pulvinar. Nam vitae nunc in ligula hendrerit ultrices. Praesent in dui ex."
+        android:layout_toRightOf="@+id/tvContent"
+        android:layout_toEndOf="@+id/tvContent"
+        android:layout_below="@+id/tvAuthorName"
+        android:layout_gravity="center_vertical|end"/>
+
+</RelativeLayout>
