@@ -4,6 +4,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import com.movies.bruno.udacity.popularmovies.classes.Movie;
+import com.movies.bruno.udacity.popularmovies.util.Constants;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -23,8 +24,6 @@ import java.util.ArrayList;
  */
 public class TMDBTask extends AsyncTask<String, Void, ArrayList<Movie>> {
 
-    private final String TMDB_API_KEY = "3d62bcc6c5dec00b1e0eb1532ad18bb1";
-
     @Override
     protected ArrayList<Movie> doInBackground(String... params) {
         try{
@@ -36,7 +35,7 @@ public class TMDBTask extends AsyncTask<String, Void, ArrayList<Movie>> {
     }
 
     public ArrayList<Movie> searchMovie(String query) throws IOException{
-        URL url = new URL("http://api.themoviedb.org/3/discover/movie?" + query + "&api_key=" + TMDB_API_KEY);
+        URL url = new URL("http://api.themoviedb.org/3/discover/movie?" + query + "&api_key=" + Constants.TMDB_API_KEY);
 
         InputStream inputStream = null;
 

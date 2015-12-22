@@ -3,6 +3,8 @@ package com.movies.bruno.udacity.popularmovies.tasks;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.movies.bruno.udacity.popularmovies.util.Constants;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -21,14 +23,12 @@ import java.util.ArrayList;
  */
 public class TMDBVideosTask extends AsyncTask<Integer, Void, ArrayList<String>> {
 
-    private final String TMDB_API_KEY = "3d62bcc6c5dec00b1e0eb1532ad18bb1";
-
     @Override
     protected ArrayList<String> doInBackground(Integer... params) {
         int id = params[0];
 
         try {
-            URL url = new URL("http://api.themoviedb.org/3/movie/" + id + "/videos?api_key=" + TMDB_API_KEY);
+            URL url = new URL("http://api.themoviedb.org/3/movie/" + id + "/videos?api_key=" + Constants.TMDB_API_KEY);
 
             InputStream inputStream = null;
 

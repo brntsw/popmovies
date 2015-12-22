@@ -13,6 +13,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.movies.bruno.udacity.popularmovies.classes.Review;
 import com.movies.bruno.udacity.popularmovies.tasks.TMDBReviewsTask;
@@ -34,6 +35,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
     private TextView releasedView;
     private TextView starText;
     private TextView overviewView;
+    private ImageView imgFavorite;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -119,6 +121,28 @@ public class MovieDetailsActivity extends AppCompatActivity {
             releasedView.setText(released);
             starText.setText(String.valueOf(voteAverage));
             overviewView.setText(overview);
+
+            imgFavorite.setTag(R.drawable.favorite);
+
+            imgFavorite.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if(Integer.parseInt(String.valueOf(imgFavorite.getTag())) == R.drawable.favorite){
+                        imgFavorite.setImageResource(R.drawable.favorite_red);
+                        imgFavorite.setTag(R.drawable.favorite_red);
+                        Toast.makeText(MovieDetailsActivity.this, "Movie added to the favorites!", Toast.LENGTH_SHORT).show();
+                        //TODO
+                        //Implement the SQLite database where it stores the favorite movies (using the id)
+                    }
+                    else{
+                        imgFavorite.setImageResource(R.drawable.favorite);
+                        imgFavorite.setTag(R.drawable.favorite);
+                        Toast.makeText(MovieDetailsActivity.this, "Movie removed from the favorites!", Toast.LENGTH_SHORT).show();
+                        //TODO
+                        //Implement the function that deletes the movie from the favorites table
+                    }
+                }
+            });
         }
     }
 
@@ -156,5 +180,6 @@ public class MovieDetailsActivity extends AppCompatActivity {
         releasedView = (TextView) findViewById(R.id.releasedView);
         starText = (TextView) findViewById(R.id.starText);
         overviewView = (TextView) findViewById(R.id.overviewView);
+        imgFavorite = (ImageView) findViewById(R.id.imgFavorite);
     }
 }
