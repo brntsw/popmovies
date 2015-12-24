@@ -41,9 +41,11 @@ public class SettingsActivity extends AppCompatActivity {
 
         RadioButton radioMostPopular = (RadioButton) findViewById(R.id.radioMostPopular);
         RadioButton radioHighestRated = (RadioButton) findViewById(R.id.radioHighestRated);
+        RadioButton radioFavorite = (RadioButton) findViewById(R.id.radioFavorite);
 
         listRadio.add(radioMostPopular);
         listRadio.add(radioHighestRated);
+        listRadio.add(radioFavorite);
 
         SharedPreferences sharedPref = getSharedPreferences(getResources().getString(R.string.pref_name), Context.MODE_PRIVATE);
         int pref = sharedPref.getInt(getString(R.string.saved_sort_movie), -1);
@@ -87,6 +89,12 @@ public class SettingsActivity extends AppCompatActivity {
                             SharedPreferences.Editor editor2 = sp2.edit();
                             editor2.putInt(getString(R.string.saved_sort_movie), R.id.radioHighestRated);
                             editor2.apply();
+                            break;
+                        case R.id.radioFavorite:
+                            SharedPreferences sp3 = getSharedPreferences(getResources().getString(R.string.pref_name), Context.MODE_PRIVATE);
+                            SharedPreferences.Editor editor3 = sp3.edit();
+                            editor3.putInt(getString(R.string.saved_sort_movie), R.id.radioFavorite);
+                            editor3.apply();
                             break;
                     }
                 }

@@ -20,6 +20,7 @@ import android.widget.Toast;
 import com.movies.bruno.udacity.popularmovies.adapter.MovieAdapter;
 import com.movies.bruno.udacity.popularmovies.classes.Movie;
 import com.movies.bruno.udacity.popularmovies.tasks.TMDBTask;
+import com.movies.bruno.udacity.popularmovies.util.DatabaseOpenHelper;
 
 import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
@@ -41,18 +42,57 @@ public class MainActivity extends AppCompatActivity {
 
             Log.d("Pref", pref+"");
 
-            String query;
+            String query = "";
             if(pref == -1 || pref == R.id.radioMostPopular){
                 query = "&sort_by=popularity.desc";
             }
-            else{
+            else if(pref == R.id.linearHighestRated){
                 query = "&sort_by=vote_average.desc";
             }
 
-            try {
-                final ArrayList<Movie> movies = new TMDBTask().execute(query).get();
+            if(pref != R.id.radioFavorite) {
+                try {
+                    final ArrayList<Movie> movies = new TMDBTask().execute(query).get();
 
-                if(movies != null){
+                    if (movies != null) {
+                        adapter = new MovieAdapter(MainActivity.this, movies);
+
+                        gridMovies.setAdapter(adapter);
+
+                        gridMovies.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                            @Override
+                            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                                ImageView imageView = (ImageView) view.findViewById(R.id.picture);
+                                Movie movie = (Movie) imageView.getTag();
+                                //Iniciar outra activity MovieDetailsActivity, enviando o objeto movie
+                                Intent intent = new Intent(MainActivity.this, MovieDetailsActivity.class);
+                                intent.putExtra("movieId", movie.getId());
+                                intent.putExtra("backdropPath", movie.getBackdropPath());
+                                intent.putExtra("posterPath", movie.getPosterPath());
+                                intent.putExtra("title", movie.getTitle());
+                                intent.putExtra("released", movie.getReleaseDate());
+                                intent.putExtra("voteAverage", movie.getVoteAverage());
+                                intent.putExtra("overview", movie.getOverview());
+                                startActivity(intent);
+                            }
+                        });
+
+                        for (int i = 0; i < movies.size(); i++) {
+                            Log.d("RESULT", "Popularity: " + movies.get(i).getPopularity());
+                            Log.d("RESULT", "Vote: " + movies.get(i).getVoteAverage());
+                        }
+                    } else {
+                        Toast.makeText(MainActivity.this, R.string.no_movies, Toast.LENGTH_SHORT).show();
+                    }
+                } catch (InterruptedException | ExecutionException e) {
+                    e.printStackTrace();
+                }
+            }
+            else{
+                DatabaseOpenHelper db = new DatabaseOpenHelper(MainActivity.this);
+                ArrayList<Movie> movies = db.getAllFavorites();
+
+                if (movies != null) {
                     adapter = new MovieAdapter(MainActivity.this, movies);
 
                     gridMovies.setAdapter(adapter);
@@ -74,17 +114,7 @@ public class MainActivity extends AppCompatActivity {
                             startActivity(intent);
                         }
                     });
-
-                    for(int i = 0; i < movies.size(); i++){
-                        Log.d("RESULT", "Popularity: " + movies.get(i).getPopularity());
-                        Log.d("RESULT", "Vote: " + movies.get(i).getVoteAverage());
-                    }
                 }
-                else{
-                    Toast.makeText(MainActivity.this, R.string.no_movies, Toast.LENGTH_SHORT).show();
-                }
-            } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
             }
         }
         else{

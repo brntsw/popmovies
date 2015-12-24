@@ -15,10 +15,12 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.movies.bruno.udacity.popularmovies.classes.Movie;
 import com.movies.bruno.udacity.popularmovies.classes.Review;
 import com.movies.bruno.udacity.popularmovies.tasks.TMDBReviewsTask;
 import com.movies.bruno.udacity.popularmovies.tasks.TMDBVideosTask;
 import com.movies.bruno.udacity.popularmovies.util.Constants;
+import com.movies.bruno.udacity.popularmovies.util.DatabaseOpenHelper;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -59,13 +61,13 @@ public class MovieDetailsActivity extends AppCompatActivity {
         //Get the Bundle sent from the MainActivity
         Bundle extras = getIntent().getExtras();
         if(extras != null){
-            int id = extras.getInt("movieId");
-            String backdropPath = extras.getString("backdropPath");
-            String posterPath = extras.getString("posterPath");
-            String title = extras.getString("title");
-            String released = extras.getString("released");
-            double voteAverage = extras.getDouble("voteAverage");
-            String overview = extras.getString("overview");
+            final int id = extras.getInt("movieId");
+            final String backdropPath = extras.getString("backdropPath");
+            final String posterPath = extras.getString("posterPath");
+            final String title = extras.getString("title");
+            final String released = extras.getString("released");
+            final double voteAverage = extras.getDouble("voteAverage");
+            final String overview = extras.getString("overview");
 
             //Get the video keys from the webservice and, when a trailer is clicked, the user is redirected to the Youtube video
             try {
@@ -122,7 +124,17 @@ public class MovieDetailsActivity extends AppCompatActivity {
             starText.setText(String.valueOf(voteAverage));
             overviewView.setText(overview);
 
-            imgFavorite.setTag(R.drawable.favorite);
+            DatabaseOpenHelper db = new DatabaseOpenHelper(MovieDetailsActivity.this);
+            Movie movie = db.getMovie(id);
+
+            if(movie != null){
+                imgFavorite.setImageResource(R.drawable.favorite_red);
+                imgFavorite.setTag(R.drawable.favorite_red);
+            }
+            else{
+                imgFavorite.setImageResource(R.drawable.favorite);
+                imgFavorite.setTag(R.drawable.favorite);
+            }
 
             imgFavorite.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -131,15 +143,27 @@ public class MovieDetailsActivity extends AppCompatActivity {
                         imgFavorite.setImageResource(R.drawable.favorite_red);
                         imgFavorite.setTag(R.drawable.favorite_red);
                         Toast.makeText(MovieDetailsActivity.this, "Movie added to the favorites!", Toast.LENGTH_SHORT).show();
-                        //TODO
-                        //Implement the SQLite database where it stores the favorite movies (using the id)
+                        //Store it on SQLite database
+
+                        Movie movie = new Movie();
+                        movie.setId(id);
+                        movie.setBackdropPath(backdropPath);
+                        movie.setPosterPath(posterPath);
+                        movie.setTitle(title);
+                        movie.setReleaseDate(released);
+                        movie.setVoteAverage(voteAverage);
+                        movie.setOverview(overview);
+
+                        DatabaseOpenHelper db = new DatabaseOpenHelper(MovieDetailsActivity.this);
+                        db.insertFavorite(movie);
                     }
                     else{
                         imgFavorite.setImageResource(R.drawable.favorite);
                         imgFavorite.setTag(R.drawable.favorite);
                         Toast.makeText(MovieDetailsActivity.this, "Movie removed from the favorites!", Toast.LENGTH_SHORT).show();
-                        //TODO
-                        //Implement the function that deletes the movie from the favorites table
+                        //Delete it from the SQLite database
+                        DatabaseOpenHelper db = new DatabaseOpenHelper(MovieDetailsActivity.this);
+                        db.deleteFavorite(id);
                     }
                 }
             });
