@@ -14,6 +14,7 @@ public class Movie {
     private String posterPath;
     private String releaseDate;
     private String overview;
+    private String trailers;
 
     public int getId(){
         return this.id;
@@ -85,5 +86,13 @@ public class Movie {
 
     public void setOverview(String overview) {
         this.overview = overview;
+    }
+
+    public String getTrailers() {
+        return trailers;
+    }
+
+    public void setTrailers(String trailers) {
+        this.trailers = trailers;
     }
 }

@@ -53,9 +53,16 @@ public class SettingsActivity extends AppCompatActivity {
         if(pref == -1 || pref == R.id.radioMostPopular){
             radioMostPopular.setChecked(true);
             radioHighestRated.setChecked(false);
+            radioFavorite.setChecked(false);
+        }
+        else if(pref == R.id.radioHighestRated){
+            radioHighestRated.setChecked(true);
+            radioMostPopular.setChecked(false);
+            radioFavorite.setChecked(true);
         }
         else{
-            radioHighestRated.setChecked(true);
+            radioFavorite.setChecked(true);
+            radioHighestRated.setChecked(false);
             radioMostPopular.setChecked(false);
         }
     }

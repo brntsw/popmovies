@@ -3,8 +3,6 @@ package com.movies.bruno.udacity.popularmovies;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -20,7 +18,7 @@ import android.widget.Toast;
 import com.movies.bruno.udacity.popularmovies.adapter.MovieAdapter;
 import com.movies.bruno.udacity.popularmovies.classes.Movie;
 import com.movies.bruno.udacity.popularmovies.tasks.TMDBTask;
-import com.movies.bruno.udacity.popularmovies.util.DatabaseOpenHelper;
+import com.movies.bruno.udacity.popularmovies.util.NetworkUtil;
 
 import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
@@ -34,9 +32,10 @@ public class MainActivity extends AppCompatActivity {
     //Spinner spinnerSort;
 
     private void listMovies(){
-        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
-        if(networkInfo != null && networkInfo.isConnected()){
+        NetworkUtil networkUtil = new NetworkUtil(MainActivity.this);
+        boolean hasNetworkAvailable = networkUtil.getNetworkConnection();
+
+        if(hasNetworkAvailable){
             SharedPreferences sharedPref = getSharedPreferences(getResources().getString(R.string.pref_name), Context.MODE_PRIVATE);
             int pref = sharedPref.getInt(getString(R.string.saved_sort_movie), -1);
 
@@ -86,34 +85,6 @@ public class MainActivity extends AppCompatActivity {
                     }
                 } catch (InterruptedException | ExecutionException e) {
                     e.printStackTrace();
-                }
-            }
-            else{
-                DatabaseOpenHelper db = new DatabaseOpenHelper(MainActivity.this);
-                ArrayList<Movie> movies = db.getAllFavorites();
-
-                if (movies != null) {
-                    adapter = new MovieAdapter(MainActivity.this, movies);
-
-                    gridMovies.setAdapter(adapter);
-
-                    gridMovies.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                        @Override
-                        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                            ImageView imageView = (ImageView) view.findViewById(R.id.picture);
-                            Movie movie = (Movie) imageView.getTag();
-                            //Iniciar outra activity MovieDetailsActivity, enviando o objeto movie
-                            Intent intent = new Intent(MainActivity.this, MovieDetailsActivity.class);
-                            intent.putExtra("movieId", movie.getId());
-                            intent.putExtra("backdropPath", movie.getBackdropPath());
-                            intent.putExtra("posterPath", movie.getPosterPath());
-                            intent.putExtra("title", movie.getTitle());
-                            intent.putExtra("released", movie.getReleaseDate());
-                            intent.putExtra("voteAverage", movie.getVoteAverage());
-                            intent.putExtra("overview", movie.getOverview());
-                            startActivity(intent);
-                        }
-                    });
                 }
             }
         }

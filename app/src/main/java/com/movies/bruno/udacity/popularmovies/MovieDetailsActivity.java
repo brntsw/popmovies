@@ -20,7 +20,7 @@ import com.movies.bruno.udacity.popularmovies.classes.Review;
 import com.movies.bruno.udacity.popularmovies.tasks.TMDBReviewsTask;
 import com.movies.bruno.udacity.popularmovies.tasks.TMDBVideosTask;
 import com.movies.bruno.udacity.popularmovies.util.Constants;
-import com.movies.bruno.udacity.popularmovies.util.DatabaseOpenHelper;
+import com.movies.bruno.udacity.popularmovies.util.NetworkUtil;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -38,6 +38,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
     private TextView starText;
     private TextView overviewView;
     private ImageView imgFavorite;
+    private String trailers;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,104 +70,110 @@ public class MovieDetailsActivity extends AppCompatActivity {
             final double voteAverage = extras.getDouble("voteAverage");
             final String overview = extras.getString("overview");
 
-            //Get the video keys from the webservice and, when a trailer is clicked, the user is redirected to the Youtube video
-            try {
-                final ArrayList<String> listKeys = new TMDBVideosTask().execute(id).get();
+            NetworkUtil networkUtil = new NetworkUtil(MovieDetailsActivity.this);
+            boolean hasNetworkAvailable = networkUtil.getNetworkConnection();
 
-                LinearLayout linearTrailers = (LinearLayout) findViewById(R.id.linearTrailers);
-                LayoutInflater inflater = LayoutInflater.from(this);
-                for(int i = 0; i < listKeys.size(); i++){
-                    View view = inflater.inflate(R.layout.item_movie_trailer, linearTrailers, false);
-                    TextView text = (TextView) view.findViewById(R.id.textTrailer);
-                    text.setText("Trailer " + (i + 1));
-                    linearTrailers.addView(view);
+            if(hasNetworkAvailable) {
+                trailers = "";
+
+                //Get the video keys from the webservice and, when a trailer is clicked, the user is redirected to the Youtube video
+                try {
+                    final ArrayList<String> listKeys = new TMDBVideosTask().execute(id).get();
+
+                    LinearLayout linearTrailers = (LinearLayout) findViewById(R.id.linearTrailers);
+                    LayoutInflater inflater = LayoutInflater.from(this);
+                    for (int i = 0; i < listKeys.size(); i++) {
+                        View view = inflater.inflate(R.layout.item_movie_trailer, linearTrailers, false);
+                        TextView text = (TextView) view.findViewById(R.id.textTrailer);
+                        text.setText("Trailer " + (i + 1));
+                        linearTrailers.addView(view);
+                    }
+
+                    for (int i = 0; i < linearTrailers.getChildCount(); i++) {
+                        final int num = i;
+                        linearTrailers.getChildAt(i).setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                Intent youTubeIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(Constants.YOUTUBE_VIDEO_URL + listKeys.get(num)));
+                                youTubeIntent.putExtra("force_fullscreen", true);
+                                startActivity(youTubeIntent);
+                            }
+                        });
+
+                        trailers += listKeys.get(num) + ",";
+                    }
+
+                    trailers = trailers.substring(0, trailers.length() - 1);
+
+                } catch (InterruptedException | ExecutionException e) {
+                    e.printStackTrace();
                 }
 
-                for(int i = 0; i < linearTrailers.getChildCount(); i++){
-                    final int num = i;
-                    linearTrailers.getChildAt(i).setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            Intent youTubeIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(Constants.YOUTUBE_VIDEO_URL + listKeys.get(num)));
-                            youTubeIntent.putExtra("force_fullscreen", true);
-                            startActivity(youTubeIntent);
+
+                //Get the reviews from the webservice and displays it (author and content)
+                try {
+                    final ArrayList<Review> listReviews = new TMDBReviewsTask().execute(id).get();
+
+                    LinearLayout linearReviews = (LinearLayout) findViewById(R.id.linearReviews);
+                    LayoutInflater inflater = LayoutInflater.from(this);
+                    for (int i = 0; i < listReviews.size(); i++) {
+                        View view = inflater.inflate(R.layout.item_review, linearReviews, false);
+                        TextView tvAuthor = (TextView) view.findViewById(R.id.tvAuthorName);
+                        tvAuthor.setText(listReviews.get(i).getAuthor());
+                        TextView tvContent = (TextView) view.findViewById(R.id.tvContentText);
+                        tvContent.setText(listReviews.get(i).getContent());
+                        linearReviews.addView(view);
+                    }
+                } catch (InterruptedException | ExecutionException e) {
+                    e.printStackTrace();
+                }
+
+                Picasso.with(MovieDetailsActivity.this).load("http://image.tmdb.org/t/p/w185/" + backdropPath).into(backdropView);
+                Picasso.with(MovieDetailsActivity.this).load("http://image.tmdb.org/t/p/w185/" + posterPath).into(posterView);
+                titleView.setText(title);
+                releasedView.setText(released);
+                starText.setText(String.valueOf(voteAverage));
+                overviewView.setText(overview);
+
+                imgFavorite.setTag(R.drawable.favorite);
+
+                final String finalTrailers = trailers;
+                imgFavorite.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (Integer.parseInt(String.valueOf(imgFavorite.getTag())) == R.drawable.favorite) {
+                            imgFavorite.setImageResource(R.drawable.favorite_red);
+                            imgFavorite.setTag(R.drawable.favorite_red);
+                            Toast.makeText(MovieDetailsActivity.this, "Movie added to the favorites!", Toast.LENGTH_SHORT).show();
+
+
+                            Movie movie = new Movie();
+                            movie.setId(id);
+                            movie.setBackdropPath(backdropPath);
+                            movie.setPosterPath(posterPath);
+                            movie.setTitle(title);
+                            movie.setReleaseDate(released);
+                            movie.setVoteAverage(voteAverage);
+                            movie.setOverview(overview);
+                            movie.setTrailers(finalTrailers);
+                        } else {
+                            imgFavorite.setImageResource(R.drawable.favorite);
+                            imgFavorite.setTag(R.drawable.favorite);
+                            Toast.makeText(MovieDetailsActivity.this, "Movie removed from the favorites!", Toast.LENGTH_SHORT).show();
                         }
-                    });
-                }
-
-            } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
-            }
-
-
-            //Get the reviews from the webservice and displays it (author and content)
-            try {
-                final ArrayList<Review> listReviews = new TMDBReviewsTask().execute(id).get();
-
-                LinearLayout linearReviews = (LinearLayout) findViewById(R.id.linearReviews);
-                LayoutInflater inflater = LayoutInflater.from(this);
-                for(int i = 0; i < listReviews.size(); i++){
-                    View view = inflater.inflate(R.layout.item_review, linearReviews, false);
-                    TextView tvAuthor = (TextView) view.findViewById(R.id.tvAuthorName);
-                    tvAuthor.setText(listReviews.get(i).getAuthor());
-                    TextView tvContent = (TextView) view.findViewById(R.id.tvContentText);
-                    tvContent.setText(listReviews.get(i).getContent());
-                    linearReviews.addView(view);
-                }
-            } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
-            }
-
-            Picasso.with(MovieDetailsActivity.this).load("http://image.tmdb.org/t/p/w185/" + backdropPath).into(backdropView);
-            Picasso.with(MovieDetailsActivity.this).load("http://image.tmdb.org/t/p/w185/" + posterPath).into(posterView);
-            titleView.setText(title);
-            releasedView.setText(released);
-            starText.setText(String.valueOf(voteAverage));
-            overviewView.setText(overview);
-
-            DatabaseOpenHelper db = new DatabaseOpenHelper(MovieDetailsActivity.this);
-            Movie movie = db.getMovie(id);
-
-            if(movie != null){
-                imgFavorite.setImageResource(R.drawable.favorite_red);
-                imgFavorite.setTag(R.drawable.favorite_red);
+                    }
+                });
             }
             else{
-                imgFavorite.setImageResource(R.drawable.favorite);
-                imgFavorite.setTag(R.drawable.favorite);
+
+                //Implement the Content Provider
+
+                titleView.setText(title);
+                releasedView.setText(released);
+                starText.setText(String.valueOf(voteAverage));
+                overviewView.setText(overview);
+
             }
-
-            imgFavorite.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if(Integer.parseInt(String.valueOf(imgFavorite.getTag())) == R.drawable.favorite){
-                        imgFavorite.setImageResource(R.drawable.favorite_red);
-                        imgFavorite.setTag(R.drawable.favorite_red);
-                        Toast.makeText(MovieDetailsActivity.this, "Movie added to the favorites!", Toast.LENGTH_SHORT).show();
-                        //Store it on SQLite database
-
-                        Movie movie = new Movie();
-                        movie.setId(id);
-                        movie.setBackdropPath(backdropPath);
-                        movie.setPosterPath(posterPath);
-                        movie.setTitle(title);
-                        movie.setReleaseDate(released);
-                        movie.setVoteAverage(voteAverage);
-                        movie.setOverview(overview);
-
-                        DatabaseOpenHelper db = new DatabaseOpenHelper(MovieDetailsActivity.this);
-                        db.insertFavorite(movie);
-                    }
-                    else{
-                        imgFavorite.setImageResource(R.drawable.favorite);
-                        imgFavorite.setTag(R.drawable.favorite);
-                        Toast.makeText(MovieDetailsActivity.this, "Movie removed from the favorites!", Toast.LENGTH_SHORT).show();
-                        //Delete it from the SQLite database
-                        DatabaseOpenHelper db = new DatabaseOpenHelper(MovieDetailsActivity.this);
-                        db.deleteFavorite(id);
-                    }
-                }
-            });
         }
     }
 
