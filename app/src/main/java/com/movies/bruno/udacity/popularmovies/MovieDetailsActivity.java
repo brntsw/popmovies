@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -69,6 +70,8 @@ public class MovieDetailsActivity extends AppCompatActivity {
             final String released = extras.getString("released");
             final double voteAverage = extras.getDouble("voteAverage");
             final String overview = extras.getString("overview");
+
+            Log.d("ID", id+"");
 
             NetworkUtil networkUtil = new NetworkUtil(MovieDetailsActivity.this);
             boolean hasNetworkAvailable = networkUtil.getNetworkConnection();
