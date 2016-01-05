@@ -1,6 +1,8 @@
 package com.movies.bruno.udacity.popularmovies;
 
+import android.content.ContentValues;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.content.res.ResourcesCompat;
@@ -16,8 +18,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.movies.bruno.udacity.popularmovies.classes.Movie;
 import com.movies.bruno.udacity.popularmovies.classes.Review;
+import com.movies.bruno.udacity.popularmovies.data.FavoriteContract;
 import com.movies.bruno.udacity.popularmovies.tasks.TMDBReviewsTask;
 import com.movies.bruno.udacity.popularmovies.tasks.TMDBVideosTask;
 import com.movies.bruno.udacity.popularmovies.util.Constants;
@@ -149,33 +151,75 @@ public class MovieDetailsActivity extends AppCompatActivity {
                             imgFavorite.setTag(R.drawable.favorite_red);
                             Toast.makeText(MovieDetailsActivity.this, "Movie added to the favorites!", Toast.LENGTH_SHORT).show();
 
+                            ContentValues contentValues = new ContentValues();
+                            contentValues.put(FavoriteContract.FavoriteEntry.COLUMN_ID_MOVIE, id);
+                            contentValues.put(FavoriteContract.FavoriteEntry.COLUMN_TITLE, title);
+                            contentValues.put(FavoriteContract.FavoriteEntry.COLUMN_BACKDROP_PATH, backdropPath);
+                            contentValues.put(FavoriteContract.FavoriteEntry.COLUMN_POSTER_PATH, posterPath);
+                            contentValues.put(FavoriteContract.FavoriteEntry.COLUMN_RELEASE_DATE, released);
+                            contentValues.put(FavoriteContract.FavoriteEntry.COLUMN_VOTE_AVERAGE, voteAverage);
+                            contentValues.put(FavoriteContract.FavoriteEntry.COLUMN_OVERVIEW, overview);
+                            contentValues.put(FavoriteContract.FavoriteEntry.COLUMN_TRAILERS, finalTrailers);
 
-                            Movie movie = new Movie();
-                            movie.setId(id);
-                            movie.setBackdropPath(backdropPath);
-                            movie.setPosterPath(posterPath);
-                            movie.setTitle(title);
-                            movie.setReleaseDate(released);
-                            movie.setVoteAverage(voteAverage);
-                            movie.setOverview(overview);
-                            movie.setTrailers(finalTrailers);
+                            getContentResolver().insert(FavoriteContract.FavoriteEntry.CONTENT_URI, contentValues);
                         } else {
                             imgFavorite.setImageResource(R.drawable.favorite);
                             imgFavorite.setTag(R.drawable.favorite);
                             Toast.makeText(MovieDetailsActivity.this, "Movie removed from the favorites!", Toast.LENGTH_SHORT).show();
+
+                            getContentResolver().delete(FavoriteContract.FavoriteEntry.CONTENT_URI,
+                                    FavoriteContract.FavoriteEntry._ID + " = ?", new String[]{String.valueOf(id)});
                         }
                     }
                 });
             }
             else{
 
-                //Implement the Content Provider
+                Cursor cursor = getContentResolver().query(FavoriteContract.FavoriteEntry.CONTENT_URI,
+                                                            new String[]{
+                                                                    FavoriteContract.FavoriteEntry.COLUMN_ID_MOVIE,
+                                                                    FavoriteContract.FavoriteEntry.COLUMN_TITLE,
+                                                                    FavoriteContract.FavoriteEntry.COLUMN_BACKDROP_PATH,
+                                                                    FavoriteContract.FavoriteEntry.COLUMN_POSTER_PATH,
+                                                                    FavoriteContract.FavoriteEntry.COLUMN_RELEASE_DATE,
+                                                                    FavoriteContract.FavoriteEntry.COLUMN_OVERVIEW,
+                                                                    FavoriteContract.FavoriteEntry.COLUMN_TRAILERS
+                                                            },
+                                                            FavoriteContract.FavoriteEntry._ID + " = ?",
+                                                            new String[]{String.valueOf(id)},
+                                                            FavoriteContract.FavoriteEntry.COLUMN_TITLE);
 
                 titleView.setText(title);
                 releasedView.setText(released);
                 starText.setText(String.valueOf(voteAverage));
                 overviewView.setText(overview);
 
+                String trailers = cursor.getString(cursor.getColumnIndex(FavoriteContract.FavoriteEntry.COLUMN_TRAILERS));
+                final String[] auxTrailers = trailers.split(",");
+
+                cursor.close();
+
+                LinearLayout linearTrailers = (LinearLayout) findViewById(R.id.linearTrailers);
+                LayoutInflater inflater = LayoutInflater.from(this);
+
+                for(int i = 0; i < auxTrailers.length; i++){
+                    View view = inflater.inflate(R.layout.item_movie_trailer, linearTrailers, false);
+                    TextView text = (TextView) view.findViewById(R.id.textTrailer);
+                    text.setText("Trailer " + (i + 1));
+                    linearTrailers.addView(view);
+                }
+
+                for (int i = 0; i < linearTrailers.getChildCount(); i++) {
+                    final int num = i;
+                    linearTrailers.getChildAt(i).setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            Intent youTubeIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(Constants.YOUTUBE_VIDEO_URL + auxTrailers[num]));
+                            youTubeIntent.putExtra("force_fullscreen", true);
+                            startActivity(youTubeIntent);
+                        }
+                    });
+                }
             }
         }
     }

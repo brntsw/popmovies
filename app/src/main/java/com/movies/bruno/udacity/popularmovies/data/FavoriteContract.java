@@ -18,11 +18,13 @@ public class FavoriteContract {
         //table name
         public static final String TABLE_FAVORITES = "favorites";
         //columns
-        public static final String ID = "id";
+        public static final String _ID = "_id";
+        public static final String COLUMN_ID_MOVIE = "id_movie";
         public static final String COLUMN_TITLE = "title";
         public static final String COLUMN_BACKDROP_PATH = "backdrop_path";
         public static final String COLUMN_POSTER_PATH = "poster_path";
         public static final String COLUMN_RELEASE_DATE = "release_date";
+        public static final String COLUMN_VOTE_AVERAGE = "vote_average";
         public static final String COLUMN_OVERVIEW = "overview";
         public static final String COLUMN_TRAILERS = "trailers";
         public static final String COLUMN_REVIEWS = "reviews";

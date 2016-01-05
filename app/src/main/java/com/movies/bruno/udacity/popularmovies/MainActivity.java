@@ -3,6 +3,7 @@ package com.movies.bruno.udacity.popularmovies;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -17,6 +18,7 @@ import android.widget.Toast;
 
 import com.movies.bruno.udacity.popularmovies.adapter.MovieAdapter;
 import com.movies.bruno.udacity.popularmovies.classes.Movie;
+import com.movies.bruno.udacity.popularmovies.data.FavoriteContract;
 import com.movies.bruno.udacity.popularmovies.tasks.TMDBTask;
 import com.movies.bruno.udacity.popularmovies.util.NetworkUtil;
 
@@ -85,6 +87,66 @@ public class MainActivity extends AppCompatActivity {
                     }
                 } catch (InterruptedException | ExecutionException e) {
                     e.printStackTrace();
+                }
+            }
+            else{
+                Cursor cursor = getContentResolver().query(FavoriteContract.FavoriteEntry.CONTENT_URI,
+                                                                new String[]{
+                                                                        FavoriteContract.FavoriteEntry.COLUMN_ID_MOVIE,
+                                                                        FavoriteContract.FavoriteEntry.COLUMN_TITLE,
+                                                                        FavoriteContract.FavoriteEntry.COLUMN_BACKDROP_PATH,
+                                                                        FavoriteContract.FavoriteEntry.COLUMN_POSTER_PATH,
+                                                                        FavoriteContract.FavoriteEntry.COLUMN_RELEASE_DATE,
+                                                                        FavoriteContract.FavoriteEntry.COLUMN_OVERVIEW,
+                                                                        FavoriteContract.FavoriteEntry.COLUMN_TRAILERS
+                                                                },
+                                                                null,
+                                                                null,
+                                                                FavoriteContract.FavoriteEntry.COLUMN_TITLE
+                                                            );
+
+                ArrayList<Movie> movies = new ArrayList<>();
+
+                if(cursor.getCount() > 0){
+                    while(cursor.moveToNext()){
+                        Movie movie = new Movie();
+                        movie.setId(cursor.getInt(cursor.getColumnIndex(FavoriteContract.FavoriteEntry.COLUMN_ID_MOVIE)));
+                        movie.setTitle(cursor.getString(cursor.getColumnIndex(FavoriteContract.FavoriteEntry.COLUMN_TITLE)));
+                        movie.setBackdropPath(cursor.getString(cursor.getColumnIndex(FavoriteContract.FavoriteEntry.COLUMN_BACKDROP_PATH)));
+                        movie.setPosterPath(cursor.getString(cursor.getColumnIndex(FavoriteContract.FavoriteEntry.COLUMN_POSTER_PATH)));
+                        movie.setReleaseDate(cursor.getString(cursor.getColumnIndex(FavoriteContract.FavoriteEntry.COLUMN_RELEASE_DATE)));
+                        //movie.setVoteAverage(cursor.getFloat(cursor.getColumnIndex(FavoriteContract.FavoriteEntry.COLUMN_VOTE_AVERAGE)));
+                        movie.setOverview(cursor.getString(cursor.getColumnIndex(FavoriteContract.FavoriteEntry.COLUMN_OVERVIEW)));
+
+                        movies.add(movie);
+                    }
+                }
+
+                adapter = new MovieAdapter(MainActivity.this, movies);
+
+                gridMovies.setAdapter(adapter);
+
+                gridMovies.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        ImageView imageView = (ImageView) view.findViewById(R.id.picture);
+                        Movie movie = (Movie) imageView.getTag();
+                        //Iniciar outra activity MovieDetailsActivity, enviando o objeto movie
+                        Intent intent = new Intent(MainActivity.this, MovieDetailsActivity.class);
+                        intent.putExtra("movieId", movie.getId());
+                        intent.putExtra("backdropPath", movie.getBackdropPath());
+                        intent.putExtra("posterPath", movie.getPosterPath());
+                        intent.putExtra("title", movie.getTitle());
+                        intent.putExtra("released", movie.getReleaseDate());
+                        intent.putExtra("voteAverage", movie.getVoteAverage());
+                        intent.putExtra("overview", movie.getOverview());
+                        startActivity(intent);
+                    }
+                });
+
+                for (int i = 0; i < movies.size(); i++) {
+                    Log.d("RESULT", "Popularity: " + movies.get(i).getPopularity());
+                    Log.d("RESULT", "Vote: " + movies.get(i).getVoteAverage());
                 }
             }
         }

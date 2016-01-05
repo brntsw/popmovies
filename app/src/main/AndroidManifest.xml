@@ -28,6 +28,11 @@
             android:name=".MovieDetailsActivity"
             android:label="@string/title_activity_movie_details" >
         </activity>
+        <provider
+            android:authorities="@string/content_authority"
+            android:name=".data.FavoriteProvider"
+            android:exported="false"
+            android:syncable="true"/>
     </application>
 
 </manifest>
