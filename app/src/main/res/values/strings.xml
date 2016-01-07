@@ -20,4 +20,7 @@
     <string name="pref_name">SettingsPref</string>
     <string name="content_authority">com.movies.bruno.udacity.popularmovies</string>
 
+<!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
 </resources>

@@ -8,16 +8,11 @@
         android:id="@+id/toolbar"
         layout="@layout/toolbar" />
 
-    <GridView
-        android:id="@+id/gridMovies"
+    <fragment class="com.movies.bruno.udacity.popularmovies.fragments.MainFragment"
+        android:id="@+id/frag_movies"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:verticalSpacing="0dp"
-        android:horizontalSpacing="0dp"
-        android:stretchMode="columnWidth"
-        android:columnWidth="130dp"
-        android:gravity="center"
-        android:numColumns="auto_fit"
+        tools:layout="@layout/fragment_main"
         android:layout_below="@+id/toolbar"/>
 
 </RelativeLayout>

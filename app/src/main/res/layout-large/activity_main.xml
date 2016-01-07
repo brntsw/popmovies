@@ -1,0 +1,35 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <include
+        android:id="@+id/toolbar"
+        layout="@layout/toolbar" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:layout_below="@+id/toolbar">
+
+        <fragment class="com.movies.bruno.udacity.popularmovies.fragments.MainFragment"
+            android:id="@+id/frag_movies"
+            android:layout_width="0dp"
+            android:layout_weight="0.5"
+            android:layout_height="match_parent"
+            tools:layout="@layout/fragment_main"
+            />
+
+        <fragment class="com.movies.bruno.udacity.popularmovies.fragments.MovieDetailsFragment"
+            android:id="@+id/frag_details"
+            android:layout_width="0dp"
+            android:layout_weight="0.5"
+            android:layout_height="match_parent"
+            tools:layout="@layout/fragment_movie_details"
+            />
+
+    </LinearLayout>
+
+</RelativeLayout>
