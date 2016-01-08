@@ -17,7 +17,7 @@
         <fragment class="com.movies.bruno.udacity.popularmovies.fragments.MainFragment"
             android:id="@+id/frag_movies"
             android:layout_width="0dp"
-            android:layout_weight="0.5"
+            android:layout_weight="0.3"
             android:layout_height="match_parent"
             tools:layout="@layout/fragment_main"
             />
@@ -25,7 +25,7 @@
         <FrameLayout
             android:id="@+id/frag_details"
             android:layout_width="0dp"
-            android:layout_weight="0.5"
+            android:layout_weight="0.7"
             android:layout_height="match_parent"
             android:background="@android:color/transparent"
             />

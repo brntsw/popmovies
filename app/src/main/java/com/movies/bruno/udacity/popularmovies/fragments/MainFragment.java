@@ -71,6 +71,7 @@ public class MainFragment extends Fragment {
                         gridMovies.setAdapter(adapter);
 
                         if(!isTablet) {
+
                             gridMovies.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                                 @Override
                                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -90,6 +91,7 @@ public class MainFragment extends Fragment {
                             });
                         }
                         else{
+
                             gridMovies.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                                 @Override
                                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -155,8 +157,6 @@ public class MainFragment extends Fragment {
 
                 if(cursor.getCount() > 0){
                     while(cursor.moveToNext()){
-                        //Round the vote average
-
                         Movie movie = new Movie();
                         movie.setId(cursor.getInt(cursor.getColumnIndex(FavoriteContract.FavoriteEntry.COLUMN_ID_MOVIE)));
                         movie.setTitle(cursor.getString(cursor.getColumnIndex(FavoriteContract.FavoriteEntry.COLUMN_TITLE)));
