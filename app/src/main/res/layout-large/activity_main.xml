@@ -22,12 +22,12 @@
             tools:layout="@layout/fragment_main"
             />
 
-        <fragment class="com.movies.bruno.udacity.popularmovies.fragments.MovieDetailsFragment"
+        <FrameLayout
             android:id="@+id/frag_details"
             android:layout_width="0dp"
             android:layout_weight="0.5"
             android:layout_height="match_parent"
-            tools:layout="@layout/fragment_movie_details"
+            android:background="@android:color/transparent"
             />
 
     </LinearLayout>

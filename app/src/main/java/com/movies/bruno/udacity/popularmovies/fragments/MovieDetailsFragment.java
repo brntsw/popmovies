@@ -121,6 +121,19 @@ public class MovieDetailsFragment extends Fragment {
 
             imgFavorite.setTag(R.drawable.favorite);
 
+            Cursor cursor = getActivity().getContentResolver().query(FavoriteContract.FavoriteEntry.CONTENT_URI,
+                                                    new String[]{},
+                                                    FavoriteContract.FavoriteEntry.COLUMN_ID_MOVIE + " = ?",
+                                                    new String[]{String.valueOf(id)},
+                                                    FavoriteContract.FavoriteEntry.COLUMN_TITLE);
+
+            if(cursor.getCount() > 0){
+                imgFavorite.setTag(R.drawable.favorite_red);
+                imgFavorite.setImageResource(R.drawable.favorite_red);
+            }
+
+            cursor.close();
+
             final String finalTrailers = trailers;
             imgFavorite.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -147,7 +160,7 @@ public class MovieDetailsFragment extends Fragment {
                         Toast.makeText(getActivity(), "Movie removed from the favorites!", Toast.LENGTH_SHORT).show();
 
                         getActivity().getContentResolver().delete(FavoriteContract.FavoriteEntry.CONTENT_URI,
-                                FavoriteContract.FavoriteEntry._ID + " = ?", new String[]{String.valueOf(id)});
+                                FavoriteContract.FavoriteEntry.COLUMN_ID_MOVIE + " = ?", new String[]{String.valueOf(id)});
                     }
                 }
             });
@@ -164,7 +177,7 @@ public class MovieDetailsFragment extends Fragment {
                             FavoriteContract.FavoriteEntry.COLUMN_OVERVIEW,
                             FavoriteContract.FavoriteEntry.COLUMN_TRAILERS
                     },
-                    FavoriteContract.FavoriteEntry._ID + " = ?",
+                    FavoriteContract.FavoriteEntry.COLUMN_ID_MOVIE + " = ?",
                     new String[]{String.valueOf(id)},
                     FavoriteContract.FavoriteEntry.COLUMN_TITLE);
 
@@ -173,7 +186,7 @@ public class MovieDetailsFragment extends Fragment {
             starText.setText(String.valueOf(voteAverage));
             overviewView.setText(overview);
 
-            Log.d("TAM", cursor.getCount()+"");
+            Log.d("TAM", cursor.getCount() + "");
 
             if(cursor.getCount() > 0){
                 String trailers = cursor.getString(cursor.getColumnIndex(FavoriteContract.FavoriteEntry.COLUMN_TRAILERS));

@@ -37,6 +37,8 @@ public class MainFragment extends Fragment {
     private GridView gridMovies;
     MovieAdapter adapter;
 
+    boolean isTablet;
+
     public MainFragment() {
         // Required empty public constructor
     }
@@ -67,8 +69,6 @@ public class MainFragment extends Fragment {
                         adapter = new MovieAdapter(getActivity(), movies);
 
                         gridMovies.setAdapter(adapter);
-
-                        boolean isTablet = getResources().getBoolean(R.bool.isTablet);
 
                         if(!isTablet) {
                             gridMovies.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -112,12 +112,6 @@ public class MainFragment extends Fragment {
 
                                         movieDetailsFragment.setArguments(bundle);
 
-                                        // remove
-                                        Fragment fragment = fm.findFragmentById(R.id.frag_details);
-                                        FragmentTransaction ft = fm.beginTransaction();
-                                        ft.remove(fragment);
-                                        ft.commit();
-
                                         FragmentTransaction ft2 = fm.beginTransaction();
                                         ft2.replace(R.id.frag_details, movieDetailsFragment);
                                         ft2.commit();
@@ -148,6 +142,7 @@ public class MainFragment extends Fragment {
                                 FavoriteContract.FavoriteEntry.COLUMN_BACKDROP_PATH,
                                 FavoriteContract.FavoriteEntry.COLUMN_POSTER_PATH,
                                 FavoriteContract.FavoriteEntry.COLUMN_RELEASE_DATE,
+                                FavoriteContract.FavoriteEntry.COLUMN_VOTE_AVERAGE,
                                 FavoriteContract.FavoriteEntry.COLUMN_OVERVIEW,
                                 FavoriteContract.FavoriteEntry.COLUMN_TRAILERS
                         },
@@ -160,13 +155,15 @@ public class MainFragment extends Fragment {
 
                 if(cursor.getCount() > 0){
                     while(cursor.moveToNext()){
+                        //Round the vote average
+
                         Movie movie = new Movie();
                         movie.setId(cursor.getInt(cursor.getColumnIndex(FavoriteContract.FavoriteEntry.COLUMN_ID_MOVIE)));
                         movie.setTitle(cursor.getString(cursor.getColumnIndex(FavoriteContract.FavoriteEntry.COLUMN_TITLE)));
                         movie.setBackdropPath(cursor.getString(cursor.getColumnIndex(FavoriteContract.FavoriteEntry.COLUMN_BACKDROP_PATH)));
                         movie.setPosterPath(cursor.getString(cursor.getColumnIndex(FavoriteContract.FavoriteEntry.COLUMN_POSTER_PATH)));
                         movie.setReleaseDate(cursor.getString(cursor.getColumnIndex(FavoriteContract.FavoriteEntry.COLUMN_RELEASE_DATE)));
-                        //movie.setVoteAverage(cursor.getFloat(cursor.getColumnIndex(FavoriteContract.FavoriteEntry.COLUMN_VOTE_AVERAGE)));
+                        movie.setVoteAverage(cursor.getDouble(cursor.getColumnIndex(FavoriteContract.FavoriteEntry.COLUMN_VOTE_AVERAGE)));
                         movie.setOverview(cursor.getString(cursor.getColumnIndex(FavoriteContract.FavoriteEntry.COLUMN_OVERVIEW)));
 
                         movies.add(movie);
@@ -177,23 +174,58 @@ public class MainFragment extends Fragment {
 
                 gridMovies.setAdapter(adapter);
 
-                gridMovies.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        ImageView imageView = (ImageView) view.findViewById(R.id.picture);
-                        Movie movie = (Movie) imageView.getTag();
-                        //Iniciar outra activity MovieDetailsActivity, enviando o objeto movie
-                        Intent intent = new Intent(getActivity(), MovieDetailsActivity.class);
-                        intent.putExtra("movieId", movie.getId());
-                        intent.putExtra("backdropPath", movie.getBackdropPath());
-                        intent.putExtra("posterPath", movie.getPosterPath());
-                        intent.putExtra("title", movie.getTitle());
-                        intent.putExtra("released", movie.getReleaseDate());
-                        intent.putExtra("voteAverage", movie.getVoteAverage());
-                        intent.putExtra("overview", movie.getOverview());
-                        startActivity(intent);
-                    }
-                });
+                if(!isTablet) {
+                    gridMovies.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                            ImageView imageView = (ImageView) view.findViewById(R.id.picture);
+                            Movie movie = (Movie) imageView.getTag();
+                            //Iniciar outra activity MovieDetailsActivity, enviando o objeto movie
+                            Intent intent = new Intent(getActivity(), MovieDetailsActivity.class);
+                            intent.putExtra("movieId", movie.getId());
+                            intent.putExtra("backdropPath", movie.getBackdropPath());
+                            intent.putExtra("posterPath", movie.getPosterPath());
+                            intent.putExtra("title", movie.getTitle());
+                            intent.putExtra("released", movie.getReleaseDate());
+                            intent.putExtra("voteAverage", movie.getVoteAverage());
+                            intent.putExtra("overview", movie.getOverview());
+                            startActivity(intent);
+                        }
+                    });
+                }
+                else{
+                    gridMovies.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                            try {
+                                FragmentManager fm = getFragmentManager();
+
+                                ImageView imageView = (ImageView) view.findViewById(R.id.picture);
+                                Movie movie = (Movie) imageView.getTag();
+
+                                MovieDetailsFragment movieDetailsFragment = new MovieDetailsFragment();
+
+                                Bundle bundle = new Bundle();
+                                bundle.putInt("movieId", movie.getId());
+                                bundle.putString("backdropPath", movie.getBackdropPath());
+                                bundle.putString("posterPath", movie.getPosterPath());
+                                bundle.putString("title", movie.getTitle());
+                                bundle.putString("released", movie.getReleaseDate());
+                                bundle.putDouble("voteAverage", movie.getVoteAverage());
+                                bundle.putString("overview", movie.getOverview());
+
+                                movieDetailsFragment.setArguments(bundle);
+
+                                FragmentTransaction ft2 = fm.beginTransaction();
+                                ft2.replace(R.id.frag_details, movieDetailsFragment);
+                                ft2.commit();
+                            }
+                            catch(Exception e){
+                                Toast.makeText(getActivity(), "Msg: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
+                }
 
                 for (int i = 0; i < movies.size(); i++) {
                     Log.d("RESULT", "Popularity: " + movies.get(i).getPopularity());
@@ -212,6 +244,8 @@ public class MainFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_main, container, false);
+
+        isTablet = getResources().getBoolean(R.bool.isTablet);
 
         gridMovies = (GridView) view.findViewById(R.id.gridMovies);
 
