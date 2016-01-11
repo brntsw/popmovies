@@ -5,6 +5,7 @@ import android.app.Fragment;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -23,6 +24,7 @@ import com.movies.bruno.udacity.popularmovies.tasks.TMDBReviewsTask;
 import com.movies.bruno.udacity.popularmovies.tasks.TMDBVideosTask;
 import com.movies.bruno.udacity.popularmovies.util.Constants;
 import com.movies.bruno.udacity.popularmovies.util.NetworkUtil;
+import com.movies.bruno.udacity.popularmovies.util.Utils;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -157,6 +159,14 @@ public class MovieDetailsFragment extends Fragment {
 
                         getActivity().getContentResolver().insert(FavoriteContract.FavoriteEntry.CONTENT_URI_FAVORITES, contentValuesFavorite);
 
+                        //Convert the drawable to Bitmap
+                        Bitmap bitmapPoster = Utils.drawableToBitmap(posterView.getDrawable());
+                        Bitmap bitmapBackdrop = Utils.drawableToBitmap(backdropView.getDrawable());
+
+                        //Saves the image on a folder
+                        Utils.createFile(bitmapPoster, id + "_poster");
+                        Utils.createFile(bitmapBackdrop, id + "_backdrop");
+
                         //Insert the review
                         ContentValues[] contentValuesReview = new ContentValues[reviews.size()];
                         for(int i = 0; i < reviews.size(); i++){
@@ -199,7 +209,18 @@ public class MovieDetailsFragment extends Fragment {
             starText.setText(String.valueOf(voteAverage));
             overviewView.setText(overview);
 
+            //Loads the poster image
+            Bitmap bitmapPoster = Utils.getImage(id + "_poster");
+            posterView.setImageBitmap(bitmapPoster);
+
+            //Loads the backdrop image
+            Bitmap bitmapBackdrop = Utils.getImage(id + "_backdrop");
+            backdropView.setImageBitmap(bitmapBackdrop);
+
             if(cursor.getCount() > 0){
+                imgFavorite.setTag(R.drawable.favorite_red);
+                imgFavorite.setImageResource(R.drawable.favorite_red);
+
                 cursor.moveToNext();
                 String trailers = cursor.getString(cursor.getColumnIndex(FavoriteContract.FavoriteEntry.COLUMN_TRAILERS));
                 final String[] auxTrailers = trailers.split(",");

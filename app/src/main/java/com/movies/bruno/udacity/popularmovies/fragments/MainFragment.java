@@ -247,6 +247,13 @@ public class MainFragment extends Fragment {
         }
         else{
             Toast.makeText(getActivity(), "No network connection", Toast.LENGTH_SHORT).show();
+
+            SharedPreferences sharedPref = getActivity().getSharedPreferences(getResources().getString(R.string.pref_name), Context.MODE_PRIVATE);
+            int pref = sharedPref.getInt(getString(R.string.saved_sort_movie), -1);
+
+            if(pref == R.id.radioFavorite){
+                //Adaptar o adapter para que seja aceito um Cursor dos resultados
+            }
         }
     }
 
