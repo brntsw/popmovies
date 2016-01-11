@@ -22,7 +22,9 @@ import com.movies.bruno.udacity.popularmovies.MovieDetailsActivity;
 import com.movies.bruno.udacity.popularmovies.R;
 import com.movies.bruno.udacity.popularmovies.adapter.MovieAdapter;
 import com.movies.bruno.udacity.popularmovies.classes.Movie;
+import com.movies.bruno.udacity.popularmovies.classes.Review;
 import com.movies.bruno.udacity.popularmovies.data.FavoriteContract;
+import com.movies.bruno.udacity.popularmovies.tasks.TMDBReviewsTask;
 import com.movies.bruno.udacity.popularmovies.tasks.TMDBTask;
 import com.movies.bruno.udacity.popularmovies.util.NetworkUtil;
 
@@ -86,6 +88,14 @@ public class MainFragment extends Fragment {
                                     intent.putExtra("released", movie.getReleaseDate());
                                     intent.putExtra("voteAverage", movie.getVoteAverage());
                                     intent.putExtra("overview", movie.getOverview());
+
+                                    try {
+                                        ArrayList<Review> reviews = new TMDBReviewsTask().execute(movie.getId()).get();
+                                        intent.putExtra("reviews", reviews);
+                                    } catch (InterruptedException | ExecutionException e) {
+                                        e.printStackTrace();
+                                    }
+
                                     startActivity(intent);
                                 }
                             });
@@ -137,7 +147,7 @@ public class MainFragment extends Fragment {
                 }
             }
             else{
-                Cursor cursor = getActivity().getContentResolver().query(FavoriteContract.FavoriteEntry.CONTENT_URI,
+                Cursor cursor = getActivity().getContentResolver().query(FavoriteContract.FavoriteEntry.CONTENT_URI_FAVORITES,
                         new String[]{
                                 FavoriteContract.FavoriteEntry.COLUMN_ID_MOVIE,
                                 FavoriteContract.FavoriteEntry.COLUMN_TITLE,
@@ -169,6 +179,8 @@ public class MainFragment extends Fragment {
                         movies.add(movie);
                     }
                 }
+
+                cursor.close();
 
                 adapter = new MovieAdapter(getActivity(), movies);
 

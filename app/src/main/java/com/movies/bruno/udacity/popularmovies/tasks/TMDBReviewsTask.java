@@ -24,9 +24,11 @@ import java.util.ArrayList;
  */
 public class TMDBReviewsTask extends AsyncTask<Integer, Void, ArrayList<Review>> {
 
+    private int id;
+
     @Override
     protected ArrayList<Review> doInBackground(Integer... params) {
-        int id = params[0];
+        id = params[0];
 
         try {
             URL url = new URL("http://api.themoviedb.org/3/movie/" + id + "/reviews?api_key=" + Constants.TMDB_API_KEY);
@@ -69,11 +71,8 @@ public class TMDBReviewsTask extends AsyncTask<Integer, Void, ArrayList<Review>>
             JSONObject jsonObject = new JSONObject(result);
             JSONArray jsonArray = (JSONArray) jsonObject.get("results");
             for(int i = 0; i < jsonArray.length(); i++){
-                Review review = new Review();
                 JSONObject jsonReview = jsonArray.getJSONObject(i);
-
-                review.setAuthor(jsonReview.getString("author"));
-                review.setContent(jsonReview.getString("content"));
+                Review review = new Review(id, jsonReview.getString("author"), jsonReview.getString("content"));
 
                 listReviews.add(review);
             }

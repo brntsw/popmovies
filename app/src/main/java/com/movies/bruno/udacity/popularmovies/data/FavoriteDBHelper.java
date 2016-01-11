@@ -33,8 +33,15 @@ public class FavoriteDBHelper extends SQLiteOpenHelper {
                 FavoriteContract.FavoriteEntry.COLUMN_OVERVIEW + " TEXT NOT NULL, " +
                 FavoriteContract.FavoriteEntry.COLUMN_TRAILERS + " TEXT NOT NULL);";
 
+        final String SQL_CREATE_REVIEW_TABLE = "CREATE TABLE " +
+                FavoriteContract.FavoriteEntry.TABLE_REVIEWS + "(" + FavoriteContract.FavoriteEntry._ID +
+                " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                FavoriteContract.FavoriteEntry.COLUMN_ID_MOVIE + " INTEGER NOT NULL, " +
+                FavoriteContract.FavoriteEntry.COLUMN_AUTHOR + " TEXT NOT NULL, " +
+                FavoriteContract.FavoriteEntry.COLUMN_CONTENT + " TEXT NOT NULL);";
 
         db.execSQL(SQL_CREATE_MOVIE_TABLE);
+        db.execSQL(SQL_CREATE_REVIEW_TABLE);
     }
 
     @Override

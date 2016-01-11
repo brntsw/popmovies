@@ -21,8 +21,10 @@ public class FavoriteProvider extends ContentProvider {
     private FavoriteDBHelper mOpenHelper;
 
     // Codes for the UriMatcher //////
-    private static final int FAVORITE = 100;
-    private static final int FAVORITE_WITH_ID = 200;
+    private static final int FAVORITE = 1;
+    private static final int FAVORITE_WITH_ID = 2;
+    private static final int REVIEW = 3;
+    private static final int REVIEW_WITH_ID = 4;
 
     private static UriMatcher buildUriMatcher(){
         // Build a UriMatcher by adding a specific code to return based on a match
@@ -33,6 +35,8 @@ public class FavoriteProvider extends ContentProvider {
         // add a code for each type of URI you want
         matcher.addURI(authority, FavoriteContract.FavoriteEntry.TABLE_FAVORITES, FAVORITE);
         matcher.addURI(authority, FavoriteContract.FavoriteEntry.TABLE_FAVORITES + "/#", FAVORITE_WITH_ID);
+        matcher.addURI(authority, FavoriteContract.FavoriteEntry.TABLE_REVIEWS, REVIEW);
+        matcher.addURI(authority, FavoriteContract.FavoriteEntry.TABLE_REVIEWS + "/#", REVIEW_WITH_ID);
 
         return matcher;
     }
@@ -72,6 +76,32 @@ public class FavoriteProvider extends ContentProvider {
                 );
 
                 return cursor;
+
+            case REVIEW:
+                cursor = mOpenHelper.getReadableDatabase().query(
+                        FavoriteContract.FavoriteEntry.TABLE_REVIEWS,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        sortOrder
+                );
+
+                return cursor;
+
+            case REVIEW_WITH_ID:
+                cursor = mOpenHelper.getReadableDatabase().query(
+                        FavoriteContract.FavoriteEntry.TABLE_REVIEWS,
+                        projection,
+                        FavoriteContract.FavoriteEntry._ID + " = ?",
+                        new String[]{String.valueOf(ContentUris.parseId(uri))},
+                        null,
+                        null,
+                        sortOrder
+                );
+
+                return cursor;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
@@ -83,9 +113,13 @@ public class FavoriteProvider extends ContentProvider {
 
         switch (match){
             case FAVORITE:
-                return FavoriteContract.FavoriteEntry.CONTENT_DIR_TYPE;
+                return FavoriteContract.FavoriteEntry.CONTENT_DIR_TYPE_FAVORITES;
             case FAVORITE_WITH_ID:
-                return FavoriteContract.FavoriteEntry.CONTENT_ITEM_TYPE;
+                return FavoriteContract.FavoriteEntry.CONTENT_ITEM_TYPE_FAVORITES;
+            case REVIEW:
+                return FavoriteContract.FavoriteEntry.CONTENT_DIR_TYPE_REVIEWS;
+            case REVIEW_WITH_ID:
+                return FavoriteContract.FavoriteEntry.CONTENT_ITEM_TYPE_REVIEWS;
             default:
                 throw new UnsupportedOperationException("Unkown uri: " + uri);
         }
@@ -99,7 +133,16 @@ public class FavoriteProvider extends ContentProvider {
             case FAVORITE: {
                 long id = db.insert(FavoriteContract.FavoriteEntry.TABLE_FAVORITES, null, values);
                 if (id > 0) {
-                    returnUri = FavoriteContract.FavoriteEntry.buildFlavorsUri(id);
+                    returnUri = FavoriteContract.FavoriteEntry.buildFavoritedUri(id);
+                } else {
+                    throw new android.database.SQLException("Failed to insert row into: " + uri);
+                }
+                break;
+            }
+            case REVIEW:{
+                long id = db.insert(FavoriteContract.FavoriteEntry.TABLE_REVIEWS, null, values);
+                if (id > 0) {
+                    returnUri = FavoriteContract.FavoriteEntry.buildReviewUri(id);
                 } else {
                     throw new android.database.SQLException("Failed to insert row into: " + uri);
                 }
@@ -120,42 +163,76 @@ public class FavoriteProvider extends ContentProvider {
         final int match = sUriMatcher.match(uri);
 
         switch (match){
-            case FAVORITE:
+            case FAVORITE: {
                 //multiple transactions
                 db.beginTransaction();
 
                 //keep track of successful inserts
                 int numInserted = 0;
-                try{
-                    for(ContentValues value : values){
-                        if(value == null){
+                try {
+                    for (ContentValues value : values) {
+                        if (value == null) {
                             throw new IllegalArgumentException("Cannot have null content values");
                         }
                         long id = -1;
-                        try{
+                        try {
                             id = db.insertOrThrow(FavoriteContract.FavoriteEntry.TABLE_FAVORITES, null, value);
-                        }
-                        catch (SQLiteConstraintException e){
+                        } catch (SQLiteConstraintException e) {
                             Log.v(LOG_TAG, "The value is already in database");
                         }
 
-                        if(id != -1){
+                        if (id != -1) {
                             numInserted++;
                         }
                     }
-                    if(numInserted > 0){
+                    if (numInserted > 0) {
                         db.setTransactionSuccessful();
                     }
-                }
-                finally {
+                } finally {
                     db.endTransaction();
                 }
 
-                if(numInserted > 0){
+                if (numInserted > 0) {
                     getContext().getContentResolver().notifyChange(uri, null);
                 }
 
                 return numInserted;
+            }
+            case REVIEW: {
+                //multiple transactions
+                db.beginTransaction();
+
+                //keep track of successful inserts
+                int numInserted = 0;
+                try {
+                    for (ContentValues value : values) {
+                        if (value == null) {
+                            throw new IllegalArgumentException("Cannot have null content values");
+                        }
+                        long id = -1;
+                        try {
+                            id = db.insertOrThrow(FavoriteContract.FavoriteEntry.TABLE_REVIEWS, null, value);
+                        } catch (SQLiteConstraintException e) {
+                            Log.v(LOG_TAG, "The value is already in database");
+                        }
+
+                        if (id != -1) {
+                            numInserted++;
+                        }
+                    }
+                    if (numInserted > 0) {
+                        db.setTransactionSuccessful();
+                    }
+                } finally {
+                    db.endTransaction();
+                }
+
+                if (numInserted > 0) {
+                    getContext().getContentResolver().notifyChange(uri, null);
+                }
+
+                return numInserted;
+            }
             default:
                 return super.bulkInsert(uri, values);
         }
@@ -179,6 +256,19 @@ public class FavoriteProvider extends ContentProvider {
                         new String[]{String.valueOf(ContentUris.parseId(uri))});
                 //reset ID
                 db.execSQL("DELETE FROM SQLITE_SEQUENCE WHERE NAME = '" + FavoriteContract.FavoriteEntry.TABLE_FAVORITES + "'");
+
+                break;
+            case REVIEW:
+                numDeleted = db.delete(FavoriteContract.FavoriteEntry.TABLE_REVIEWS, selection, selectionArgs);
+                //reset ID
+                db.execSQL("DELETE FROM SQLITE_SEQUENCE WHERE NAME = '" + FavoriteContract.FavoriteEntry.TABLE_REVIEWS + "'");
+                break;
+            case REVIEW_WITH_ID:
+                numDeleted = db.delete(FavoriteContract.FavoriteEntry.TABLE_REVIEWS,
+                        FavoriteContract.FavoriteEntry._ID + " = ?",
+                        new String[]{String.valueOf(ContentUris.parseId(uri))});
+                //reset ID
+                db.execSQL("DELETE FROM SQLITE_SEQUENCE WHERE NAME = '" + FavoriteContract.FavoriteEntry.TABLE_REVIEWS + "'");
 
                 break;
             default:

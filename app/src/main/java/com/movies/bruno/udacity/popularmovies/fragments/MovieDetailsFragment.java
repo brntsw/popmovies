@@ -58,6 +58,7 @@ public class MovieDetailsFragment extends Fragment {
         final String released = bundle.getString("released");
         final double voteAverage = bundle.getDouble("voteAverage");
         final String overview = bundle.getString("overview");
+        final ArrayList<Review> reviews = bundle.getParcelableArrayList("reviews");
 
         if(hasNetworkAvailable) {
             trailers = "";
@@ -121,7 +122,7 @@ public class MovieDetailsFragment extends Fragment {
 
             imgFavorite.setTag(R.drawable.favorite);
 
-            Cursor cursor = getActivity().getContentResolver().query(FavoriteContract.FavoriteEntry.CONTENT_URI,
+            Cursor cursor = getActivity().getContentResolver().query(FavoriteContract.FavoriteEntry.CONTENT_URI_FAVORITES,
                                                     new String[]{},
                                                     FavoriteContract.FavoriteEntry.COLUMN_ID_MOVIE + " = ?",
                                                     new String[]{String.valueOf(id)},
@@ -143,31 +144,43 @@ public class MovieDetailsFragment extends Fragment {
                         imgFavorite.setTag(R.drawable.favorite_red);
                         Toast.makeText(getActivity(), "Movie added to the favorites!", Toast.LENGTH_SHORT).show();
 
-                        ContentValues contentValues = new ContentValues();
-                        contentValues.put(FavoriteContract.FavoriteEntry.COLUMN_ID_MOVIE, id);
-                        contentValues.put(FavoriteContract.FavoriteEntry.COLUMN_TITLE, title);
-                        contentValues.put(FavoriteContract.FavoriteEntry.COLUMN_BACKDROP_PATH, backdropPath);
-                        contentValues.put(FavoriteContract.FavoriteEntry.COLUMN_POSTER_PATH, posterPath);
-                        contentValues.put(FavoriteContract.FavoriteEntry.COLUMN_RELEASE_DATE, released);
-                        contentValues.put(FavoriteContract.FavoriteEntry.COLUMN_VOTE_AVERAGE, voteAverage);
-                        contentValues.put(FavoriteContract.FavoriteEntry.COLUMN_OVERVIEW, overview);
-                        contentValues.put(FavoriteContract.FavoriteEntry.COLUMN_TRAILERS, finalTrailers);
+                        //Insert the favorite
+                        ContentValues contentValuesFavorite = new ContentValues();
+                        contentValuesFavorite.put(FavoriteContract.FavoriteEntry.COLUMN_ID_MOVIE, id);
+                        contentValuesFavorite.put(FavoriteContract.FavoriteEntry.COLUMN_TITLE, title);
+                        contentValuesFavorite.put(FavoriteContract.FavoriteEntry.COLUMN_BACKDROP_PATH, backdropPath);
+                        contentValuesFavorite.put(FavoriteContract.FavoriteEntry.COLUMN_POSTER_PATH, posterPath);
+                        contentValuesFavorite.put(FavoriteContract.FavoriteEntry.COLUMN_RELEASE_DATE, released);
+                        contentValuesFavorite.put(FavoriteContract.FavoriteEntry.COLUMN_VOTE_AVERAGE, voteAverage);
+                        contentValuesFavorite.put(FavoriteContract.FavoriteEntry.COLUMN_OVERVIEW, overview);
+                        contentValuesFavorite.put(FavoriteContract.FavoriteEntry.COLUMN_TRAILERS, finalTrailers);
 
-                        getActivity().getContentResolver().insert(FavoriteContract.FavoriteEntry.CONTENT_URI, contentValues);
+                        getActivity().getContentResolver().insert(FavoriteContract.FavoriteEntry.CONTENT_URI_FAVORITES, contentValuesFavorite);
+
+                        //Insert the review
+                        ContentValues[] contentValuesReview = new ContentValues[reviews.size()];
+                        for(int i = 0; i < reviews.size(); i++){
+                            contentValuesReview[i] = new ContentValues();
+                            contentValuesReview[i].put(FavoriteContract.FavoriteEntry.COLUMN_ID_MOVIE, reviews.get(i).getIdMovie());
+                            contentValuesReview[i].put(FavoriteContract.FavoriteEntry.COLUMN_AUTHOR, reviews.get(i).getAuthor());
+                            contentValuesReview[i].put(FavoriteContract.FavoriteEntry.COLUMN_CONTENT, reviews.get(i).getContent());
+                        }
+
+                        getActivity().getContentResolver().bulkInsert(FavoriteContract.FavoriteEntry.CONTENT_URI_REVIEWS, contentValuesReview);
                     } else {
                         imgFavorite.setImageResource(R.drawable.favorite);
                         imgFavorite.setTag(R.drawable.favorite);
                         Toast.makeText(getActivity(), "Movie removed from the favorites!", Toast.LENGTH_SHORT).show();
 
-                        getActivity().getContentResolver().delete(FavoriteContract.FavoriteEntry.CONTENT_URI,
+                        getActivity().getContentResolver().delete(FavoriteContract.FavoriteEntry.CONTENT_URI_FAVORITES,
                                 FavoriteContract.FavoriteEntry.COLUMN_ID_MOVIE + " = ?", new String[]{String.valueOf(id)});
                     }
                 }
             });
         }
         else{
-
-            Cursor cursor = getActivity().getContentResolver().query(FavoriteContract.FavoriteEntry.CONTENT_URI,
+            //Get the favorites from the Content provider
+            Cursor cursor = getActivity().getContentResolver().query(FavoriteContract.FavoriteEntry.CONTENT_URI_FAVORITES,
                     new String[]{
                             FavoriteContract.FavoriteEntry.COLUMN_ID_MOVIE,
                             FavoriteContract.FavoriteEntry.COLUMN_TITLE,
@@ -186,9 +199,8 @@ public class MovieDetailsFragment extends Fragment {
             starText.setText(String.valueOf(voteAverage));
             overviewView.setText(overview);
 
-            Log.d("TAM", cursor.getCount() + "");
-
             if(cursor.getCount() > 0){
+                cursor.moveToNext();
                 String trailers = cursor.getString(cursor.getColumnIndex(FavoriteContract.FavoriteEntry.COLUMN_TRAILERS));
                 final String[] auxTrailers = trailers.split(",");
 
@@ -211,6 +223,31 @@ public class MovieDetailsFragment extends Fragment {
                             startActivity(youTubeIntent);
                         }
                     });
+                }
+
+                //Get the reviews from the Content provider
+                cursor = getActivity().getContentResolver().query(FavoriteContract.FavoriteEntry.CONTENT_URI_REVIEWS,
+                        new String[]{
+                                FavoriteContract.FavoriteEntry.COLUMN_ID_MOVIE,
+                                FavoriteContract.FavoriteEntry.COLUMN_AUTHOR,
+                                FavoriteContract.FavoriteEntry.COLUMN_CONTENT
+                        },
+                        FavoriteContract.FavoriteEntry.COLUMN_ID_MOVIE + " = ?",
+                        new String[]{String.valueOf(id)},
+                        FavoriteContract.FavoriteEntry.COLUMN_AUTHOR);
+
+                Log.d("REVIEWS", cursor.getCount()+"");
+
+                LinearLayout linearReviews = (LinearLayout) view.findViewById(R.id.linearReviews);
+                if(cursor.getCount() > 0){
+                    while(cursor.moveToNext()){
+                        View viewItemReview = inflater.inflate(R.layout.item_review, linearReviews, false);
+                        TextView tvAuthor = (TextView) viewItemReview.findViewById(R.id.tvAuthorName);
+                        tvAuthor.setText(cursor.getString(cursor.getColumnIndex(FavoriteContract.FavoriteEntry.COLUMN_AUTHOR)));
+                        TextView tvContent = (TextView) viewItemReview.findViewById(R.id.tvContentText);
+                        tvContent.setText(cursor.getString(cursor.getColumnIndex(FavoriteContract.FavoriteEntry.COLUMN_CONTENT)));
+                        linearReviews.addView(viewItemReview);
+                    }
                 }
             }
 
