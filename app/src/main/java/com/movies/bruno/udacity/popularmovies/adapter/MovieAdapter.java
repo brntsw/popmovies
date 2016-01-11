@@ -2,6 +2,8 @@ package com.movies.bruno.udacity.popularmovies.adapter;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +12,7 @@ import android.widget.ImageView;
 
 import com.movies.bruno.udacity.popularmovies.R;
 import com.movies.bruno.udacity.popularmovies.classes.Movie;
+import com.movies.bruno.udacity.popularmovies.util.Utils;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -58,7 +61,19 @@ public class MovieAdapter extends BaseAdapter{
 
         imageView = (ImageView) v.getTag(R.id.picture);
 
-        Picasso.with(activity).load("http://image.tmdb.org/t/p/w185/" + movie.getPosterPath()).into(imageView);
+        SharedPreferences sharedPref = activity.getSharedPreferences(activity.getResources().getString(R.string.pref_name), Context.MODE_PRIVATE);
+        int pref = sharedPref.getInt(activity.getString(R.string.saved_sort_movie), -1);
+
+        if(pref != R.id.radioFavorite){
+            Picasso.with(activity).load("http://image.tmdb.org/t/p/w185/" + movie.getPosterPath()).into(imageView);
+        }
+        else{
+            int id = listMovies.get(position).getId();
+
+            //Loads the poster image
+            Bitmap bitmapPoster = Utils.getImage(id + "_poster");
+            imageView.setImageBitmap(bitmapPoster);
+        }
 
         return v;
     }
