@@ -52,8 +52,6 @@ public class MovieDetailsActivity extends AppCompatActivity {
                 Intent intent = new Intent(MovieDetailsActivity.this, SettingsActivity.class);
                 startActivity(intent);
                 return true;
-            case R.id.action_about:
-                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }

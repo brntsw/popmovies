@@ -10,6 +10,9 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -43,10 +46,31 @@ public class MovieDetailsFragment extends Fragment {
     private TextView overviewView;
     private ImageView imgFavorite;
     private String trailers;
+    private String firstVideo;
 
 
     public MovieDetailsFragment() {
         // Required empty public constructor
+    }
+
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater){
+        //inflater.inflate(R.menu.menu_movie_details, menu);
+    }
+
+    public boolean onOptionsItemSelected(MenuItem item){
+        switch (item.getItemId()){
+            case R.id.action_share:
+                if(firstVideo != null && !firstVideo.equals("")) {
+                    Intent i = new Intent(Intent.ACTION_SEND);
+                    i.setType("text/plain");
+                    i.putExtra(Intent.EXTRA_SUBJECT, "Share video");
+                    i.putExtra(Intent.EXTRA_TEXT, firstVideo); //replace by the video url
+                    startActivity(Intent.createChooser(i, "Share URL"));
+                }
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     private void buildMovie(LayoutInflater inflater, View view, Bundle bundle){
@@ -76,6 +100,8 @@ public class MovieDetailsFragment extends Fragment {
                     text.setText("Trailer " + (i + 1));
                     linearTrailers.addView(viewItemTrailer);
                 }
+
+                firstVideo = Constants.YOUTUBE_VIDEO_URL + listKeys.get(0);
 
                 for (int i = 0; i < linearTrailers.getChildCount(); i++) {
                     final int num = i;
@@ -282,6 +308,8 @@ public class MovieDetailsFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_movie_details, container, false);
+
+        setHasOptionsMenu(true);
 
         backdropView = (ImageView) view.findViewById(R.id.backdropView);
         posterView = (ImageView) view.findViewById(R.id.posterView);
