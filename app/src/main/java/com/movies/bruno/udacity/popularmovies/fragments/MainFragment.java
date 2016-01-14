@@ -121,6 +121,13 @@ public class MainFragment extends Fragment {
                                         bundle.putDouble("voteAverage", movie.getVoteAverage());
                                         bundle.putString("overview", movie.getOverview());
 
+                                        try {
+                                            ArrayList<Review> reviews = new TMDBReviewsTask().execute(movie.getId()).get();
+                                            bundle.putParcelableArrayList("reviews", reviews);
+                                        } catch (InterruptedException | ExecutionException e) {
+                                            e.printStackTrace();
+                                        }
+
                                         movieDetailsFragment.setArguments(bundle);
 
                                         FragmentTransaction ft2 = fm.beginTransaction();

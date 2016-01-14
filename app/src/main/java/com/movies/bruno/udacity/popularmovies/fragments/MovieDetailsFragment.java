@@ -54,7 +54,9 @@ public class MovieDetailsFragment extends Fragment {
     }
 
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater){
-        //inflater.inflate(R.menu.menu_movie_details, menu);
+        menu.clear();
+
+        inflater.inflate(R.menu.menu_movie_details, menu);
     }
 
     public boolean onOptionsItemSelected(MenuItem item){
