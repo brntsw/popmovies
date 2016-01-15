@@ -58,7 +58,7 @@ public class MainFragment extends Fragment {
         if(pref == -1 || pref == R.id.radioMostPopular){
             query = "&sort_by=popularity.desc";
         }
-        else if(pref == R.id.linearHighestRated){
+        else if(pref == R.id.radioHighestRated){
             query = "&sort_by=vote_average.desc";
         }
 

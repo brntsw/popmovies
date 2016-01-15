@@ -20,6 +20,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.movies.bruno.udacity.popularmovies.AboutActivity;
 import com.movies.bruno.udacity.popularmovies.R;
 import com.movies.bruno.udacity.popularmovies.classes.Review;
 import com.movies.bruno.udacity.popularmovies.data.FavoriteContract;
@@ -62,13 +63,25 @@ public class MovieDetailsFragment extends Fragment {
     public boolean onOptionsItemSelected(MenuItem item){
         switch (item.getItemId()){
             case R.id.action_share:
-                if(firstVideo != null && !firstVideo.equals("")) {
-                    Intent i = new Intent(Intent.ACTION_SEND);
-                    i.setType("text/plain");
-                    i.putExtra(Intent.EXTRA_SUBJECT, "Share video");
-                    i.putExtra(Intent.EXTRA_TEXT, firstVideo); //replace by the video url
-                    startActivity(Intent.createChooser(i, "Share URL"));
+                NetworkUtil networkUtil = new NetworkUtil(getActivity());
+                boolean hasNetworkAvailable = networkUtil.getNetworkConnection();
+
+                if(hasNetworkAvailable) {
+                    if (firstVideo != null && !firstVideo.equals("")) {
+                        Intent i = new Intent(Intent.ACTION_SEND);
+                        i.setType("text/plain");
+                        i.putExtra(Intent.EXTRA_SUBJECT, "Share video");
+                        i.putExtra(Intent.EXTRA_TEXT, firstVideo);
+                        startActivity(Intent.createChooser(i, "Share URL"));
+                    }
                 }
+                else{
+                    Toast.makeText(getActivity(), "Network is not available", Toast.LENGTH_SHORT).show();
+                }
+                return true;
+            case R.id.action_about:
+                Intent intent = new Intent(getActivity(), AboutActivity.class);
+                startActivity(intent);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -103,7 +116,9 @@ public class MovieDetailsFragment extends Fragment {
                     linearTrailers.addView(viewItemTrailer);
                 }
 
-                firstVideo = Constants.YOUTUBE_VIDEO_URL + listKeys.get(0);
+                if(listKeys.size() > 0) {
+                    firstVideo = Constants.YOUTUBE_VIDEO_URL + listKeys.get(0);
+                }
 
                 for (int i = 0; i < linearTrailers.getChildCount(); i++) {
                     final int num = i;
@@ -119,7 +134,9 @@ public class MovieDetailsFragment extends Fragment {
                     trailers += listKeys.get(num) + ",";
                 }
 
-                trailers = trailers.substring(0, trailers.length() - 1);
+                if(trailers.length() > 1) {
+                    trailers = trailers.substring(0, trailers.length() - 1);
+                }
 
             } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
