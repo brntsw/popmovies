@@ -74,6 +74,9 @@ public class MovieDetailsFragment extends Fragment {
                         i.putExtra(Intent.EXTRA_TEXT, firstVideo);
                         startActivity(Intent.createChooser(i, "Share URL"));
                     }
+                    else {
+                        Toast.makeText(getActivity(), "There is no video to share", Toast.LENGTH_SHORT).show();
+                    }
                 }
                 else{
                     Toast.makeText(getActivity(), "Network is not available", Toast.LENGTH_SHORT).show();
